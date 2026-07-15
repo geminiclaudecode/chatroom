@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌍 五湖四海聊天室</title>
+  <title>🌍 口袋树洞</title>
   <style>
     /* ========== 全局重置 & 赛博朋克深邃黑背景 ========== */
     *, *::before, *::after {
@@ -123,12 +123,12 @@
     .nickname-card .icon-row {
       font-size: 52px;
       margin-bottom: 12px;
-      animation: floatIcon 3s ease-in-out infinite;
+      animation: floatIcon 4s linear infinite;
     }
 
     @keyframes floatIcon {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
+      0%   { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
     }
 
     .nickname-card h1 {
@@ -551,7 +551,7 @@
   <div class="nickname-overlay" id="nicknameOverlay">
     <div class="nickname-card">
       <div class="icon-row">🌍</div>
-      <h1>五湖四海聊天室</h1>
+      <h1>口袋树洞</h1>
       <p class="subtitle">
         输入你的昵称，和来自世界各地的朋友<br>
         一起聊天、一起玩吧 ✨
@@ -678,7 +678,7 @@
         myNickname = data.nickname;
         myNameEl.textContent = myNickname;
         onlineEl.textContent = data.usedCount;
-        document.title = `🌍 ${myNickname} | 五湖四海聊天室`;
+        document.title = `🌍 ${myNickname} | 口袋树洞`;
 
         // 昵称已确认，切换到聊天界面
         nicknameOverlay.classList.add('hidden');
