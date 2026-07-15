@@ -1,0 +1,28 @@
+# ---------- Node.js ----------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---------- 环境变量 & 密钥 ----------
+.env
+.env.*
+*.env
+
+# ---------- 敏感文件（含 API Key）----------
+ai-code.cmd
+
+# ---------- Claude Code 本地配置 ----------
+.claude/
+
+# ---------- 系统垃圾文件 ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- IDE ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

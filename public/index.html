@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌍 五湖四海聊天室</title>
+  <style>
+    /* ========== 全局重置 & 赛博朋克深邃黑背景 ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: #0d0e15;
+      color: #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ========== 背景粒子装饰（极光绿-荧光青氛围）========== */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(46, 204, 113, 0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(0, 229, 255, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(0, 188, 212, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 65% 50%, rgba(46, 204, 113, 0.03) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 229, 255, 0.012) 2px,
+          rgba(0, 229, 255, 0.012) 4px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 229, 255, 0.012) 2px,
+          rgba(0, 229, 255, 0.012) 4px
+        );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ================================================================
+       🎭 昵称输入覆盖层
+       ================================================================ */
+    .nickname-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(13, 14, 21, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    .nickname-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .nickname-card {
+      position: relative;
+      width: 420px;
+      max-width: 90vw;
+      padding: 48px 40px 40px;
+      background: rgba(20, 22, 35, 0.85);
+      border: 1px solid rgba(0, 229, 255, 0.18);
+      border-radius: 20px;
+      box-shadow:
+        0 0 40px rgba(46, 204, 113, 0.08),
+        0 0 80px rgba(0, 229, 255, 0.06),
+        0 20px 60px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      animation: cardAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .nickname-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 21px;
+      background: linear-gradient(135deg,
+        rgba(46, 204, 113, 0.35),
+        rgba(0, 229, 255, 0.35),
+        rgba(46, 204, 113, 0.15));
+      z-index: -1;
+      opacity: 0.6;
+      filter: blur(6px);
+    }
+
+    @keyframes cardAppear {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .nickname-card .icon-row {
+      font-size: 52px;
+      margin-bottom: 12px;
+      animation: floatIcon 3s ease-in-out infinite;
+    }
+
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .nickname-card h1 {
+      font-size: 26px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #2ecc71 0%, #00e5ff 60%, #2ecc71 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .nickname-card .subtitle {
+      font-size: 14px;
+      color: #667788;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .nickname-card .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .nickname-card input {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(0, 229, 255, 0.22);
+      border-radius: 14px;
+      color: #e0e0e0;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+      letter-spacing: 1px;
+    }
+
+    .nickname-card input::placeholder {
+      color: #445566;
+      font-size: 14px;
+    }
+
+    .nickname-card input:focus {
+      border-color: rgba(0, 229, 255, 0.6);
+      background: rgba(0, 229, 255, 0.04);
+      box-shadow: 0 0 24px rgba(0, 229, 255, 0.12), inset 0 0 24px rgba(0, 229, 255, 0.03);
+    }
+
+    .nickname-card .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nickname-card .btn {
+      flex: 1;
+      padding: 13px 20px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  box-shadow 0.3s ease,
+                  background 0.3s ease;
+      position: relative;
+    }
+
+    .nickname-card .btn-random {
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      color: #00e5ff;
+    }
+
+    .nickname-card .btn-random:hover {
+      background: rgba(0, 229, 255, 0.15);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .nickname-card .btn-join {
+      background: linear-gradient(135deg, #2ecc71 0%, #00e5ff 100%);
+      color: #0d0e15;
+      box-shadow: 0 2px 14px rgba(46, 204, 113, 0.3);
+    }
+
+    .nickname-card .btn-join:hover {
+      transform: scale(1.06);
+      box-shadow:
+        0 0 20px rgba(46, 204, 113, 0.45),
+        0 0 40px rgba(0, 229, 255, 0.35),
+        0 6px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .nickname-card .btn-join:active,
+    .nickname-card .btn-random:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+    }
+
+    .nickname-card .hint {
+      margin-top: 18px;
+      font-size: 12px;
+      color: #445566;
+      line-height: 1.5;
+    }
+
+    /* ================================================================
+       💬 聊天主界面（初始隐藏）
+       ================================================================ */
+    .chat-app {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      opacity: 0;
+      transition: opacity 0.5s ease 0.3s;
+    }
+
+    .chat-app.visible {
+      opacity: 1;
+    }
+
+    /* ---------- 顶部状态栏 ---------- */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: rgba(13, 14, 21, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 229, 255, 0.12);
+      flex-shrink: 0;
+    }
+
+    .status-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      color: #bcc8d6;
+    }
+
+    .status-identity .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #2ecc71;
+      box-shadow: 0 0 10px rgba(46, 204, 113, 0.7), 0 0 20px rgba(46, 204, 113, 0.3);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.5); }
+    }
+
+    .nickname-highlight {
+      background: linear-gradient(135deg, #2ecc71, #00e5ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    .online-badge {
+      font-size: 13px;
+      color: #8899aa;
+      background: rgba(0, 229, 255, 0.07);
+      border: 1px solid rgba(0, 229, 255, 0.15);
+      padding: 5px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .online-badge .num {
+      background: linear-gradient(135deg, #2ecc71, #00e5ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    /* ---------- 消息滚动区 ---------- */
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+    }
+
+    .messages-area::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .messages-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .messages-area::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(46, 204, 113, 0.25), rgba(0, 229, 255, 0.25));
+      border-radius: 10px;
+    }
+
+    .messages-area::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, rgba(46, 204, 113, 0.45), rgba(0, 229, 255, 0.45));
+    }
+
+    /* 消息气泡 */
+    .msg-wrapper {
+      display: flex;
+      flex-direction: column;
+      animation: fadeSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-meta {
+      font-size: 12px;
+      color: #667788;
+      margin-bottom: 5px;
+      padding-left: 6px;
+    }
+
+    .msg-meta .msg-nickname {
+      background: linear-gradient(135deg, #2ecc71, #00e5ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 600;
+    }
+
+    .msg-meta .msg-time {
+      margin-left: 8px;
+      color: #445566;
+    }
+
+    .msg-bubble {
+      display: inline-block;
+      max-width: 75%;
+      padding: 12px 18px;
+      border-radius: 6px 18px 18px 18px;
+      background: linear-gradient(135deg, rgba(46, 204, 113, 0.13), rgba(0, 229, 255, 0.10));
+      color: #e4eef6;
+      font-size: 15px;
+      line-height: 1.65;
+      word-break: break-word;
+      border: 1px solid rgba(0, 229, 255, 0.18);
+      box-shadow: 0 2px 12px rgba(0, 229, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .msg-bubble:hover {
+      border-color: rgba(0, 229, 255, 0.35);
+      box-shadow: 0 2px 18px rgba(0, 229, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    /* 自己发送的消息 — 右侧对齐 + 极光绿高亮边框 */
+    .msg-wrapper.is-me {
+      align-items: flex-end;
+    }
+
+    .msg-wrapper.is-me .msg-meta {
+      padding-left: 0;
+      padding-right: 6px;
+      text-align: right;
+    }
+
+    .msg-wrapper.is-me .msg-meta .msg-nickname {
+      background: linear-gradient(135deg, #f0c060, #ff9a56);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .msg-wrapper.is-me .msg-bubble {
+      border-radius: 18px 6px 18px 18px;
+      background: linear-gradient(135deg, rgba(46, 204, 113, 0.18), rgba(0, 229, 255, 0.15));
+      border-color: rgba(46, 204, 113, 0.35);
+      box-shadow: 0 2px 12px rgba(46, 204, 113, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .msg-wrapper.is-me .msg-bubble:hover {
+      border-color: rgba(46, 204, 113, 0.55);
+      box-shadow: 0 2px 18px rgba(46, 204, 113, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    /* 系统消息居中 */
+    .msg-wrapper.system {
+      align-items: center;
+      text-align: center;
+    }
+
+    .msg-wrapper.system .msg-bubble {
+      background: linear-gradient(135deg, rgba(46, 204, 113, 0.05), rgba(0, 229, 255, 0.04));
+      border: 1px solid rgba(0, 229, 255, 0.08);
+      border-radius: 14px;
+      color: #778899;
+      font-size: 13px;
+      padding: 8px 20px;
+      box-shadow: none;
+    }
+
+    .msg-wrapper.system .msg-meta {
+      display: none;
+    }
+
+    /* ---------- 底部输入区 ---------- */
+    .input-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      background: rgba(13, 14, 21, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0, 229, 255, 0.12);
+      flex-shrink: 0;
+    }
+
+    .input-area input {
+      flex: 1;
+      padding: 12px 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      color: #e0e0e0;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+    }
+
+    .input-area input::placeholder {
+      color: #445566;
+    }
+
+    .input-area input:focus {
+      border-color: rgba(0, 229, 255, 0.5);
+      background: rgba(0, 229, 255, 0.04);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.08), inset 0 0 20px rgba(0, 229, 255, 0.03);
+    }
+
+    .input-area button {
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #2ecc71 0%, #00e5ff 100%);
+      border: none;
+      border-radius: 24px;
+      color: #0d0e15;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  box-shadow 0.3s ease,
+                  background 0.3s ease;
+      flex-shrink: 0;
+      position: relative;
+      box-shadow: 0 2px 12px rgba(46, 204, 113, 0.25);
+    }
+
+    .input-area button::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 26px;
+      background: linear-gradient(135deg, #2ecc71, #00e5ff, #2ecc71);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      filter: blur(12px);
+    }
+
+    .input-area button:hover {
+      transform: scale(1.08);
+      box-shadow:
+        0 0 20px rgba(46, 204, 113, 0.4),
+        0 0 40px rgba(0, 229, 255, 0.3),
+        0 0 60px rgba(0, 229, 255, 0.15),
+        0 6px 24px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #3ddb7e 0%, #1af0ff 100%);
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+    }
+
+    .input-area button:hover::before {
+      opacity: 1;
+    }
+
+    .input-area button:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+      box-shadow:
+        0 0 10px rgba(46, 204, 113, 0.3),
+        0 0 20px rgba(0, 229, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================================================================
+  🎭 昵称输入覆盖层
+  ================================================================ -->
+  <div class="nickname-overlay" id="nicknameOverlay">
+    <div class="nickname-card">
+      <div class="icon-row">🌍</div>
+      <h1>五湖四海聊天室</h1>
+      <p class="subtitle">
+        输入你的昵称，和来自世界各地的朋友<br>
+        一起聊天、一起玩吧 ✨
+      </p>
+      <div class="input-group">
+        <input
+          type="text"
+          id="nicknameInput"
+          placeholder="请输入你的昵称（留空则随机分配）"
+          maxlength="20"
+          autocomplete="off"
+        />
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-random" id="randomBtn">🎲 随机昵称</button>
+        <button class="btn btn-join" id="joinBtn">🚀 进入聊天室</button>
+      </div>
+      <p class="hint">
+        💡 文明聊天，友善交流。昵称最多 20 个字。<br>
+        留空的话，树洞小精灵会送你一个可爱的花名 🌸
+      </p>
+    </div>
+  </div>
+
+  <!-- ================================================================
+  💬 聊天主界面
+  ================================================================ -->
+  <div class="chat-app" id="chatApp">
+    <!-- 顶部状态栏 -->
+    <div class="status-bar">
+      <div class="status-identity">
+        <span class="dot"></span>
+        <span>你好，<strong class="nickname-highlight" id="myName">...</strong></span>
+      </div>
+      <div class="online-badge">
+        🌐 在线 <span class="num" id="onlineCount">0</span> 人
+      </div>
+    </div>
+
+    <!-- 消息滚动区 -->
+    <div class="messages-area" id="messagesArea"></div>
+
+    <!-- 底部输入区 -->
+    <div class="input-area">
+      <input
+        type="text"
+        id="messageInput"
+        placeholder="说点什么吧… 全世界都听得见 🌍"
+        maxlength="500"
+      />
+      <button id="sendBtn">🌱 发送</button>
+    </div>
+  </div>
+
+  <!-- Socket.io CDN -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    (function () {
+      // ----- DOM 引用 -----
+      const nicknameOverlay = document.getElementById('nicknameOverlay');
+      const nicknameInput   = document.getElementById('nicknameInput');
+      const randomBtn       = document.getElementById('randomBtn');
+      const joinBtn         = document.getElementById('joinBtn');
+
+      const chatApp     = document.getElementById('chatApp');
+      const myNameEl    = document.getElementById('myName');
+      const onlineEl    = document.getElementById('onlineCount');
+      const msgArea     = document.getElementById('messagesArea');
+      const msgInput    = document.getElementById('messageInput');
+      const sendBtn     = document.getElementById('sendBtn');
+
+      // ----- 花名池（用于随机昵称按钮）-----
+      const FLOWER_NAMES = [
+        '凌晨三点的猫', '迷路的向日葵', '宇宙边缘的宇航员',
+        '失眠的鲸鱼', '月亮背面的兔子', '深海里的萤火虫',
+        '第七次日落', '北极星的眼泪', '会飞的金鱼',
+        '雨中跳舞的刺猬', '黄昏便利店', '银河铁道乘务员',
+        '星尘收集者', '樱花飘落的速度', '风居住的街道',
+        '被遗忘的邮筒', '云朵上的面包师', '旧唱片里的杂音',
+        '半糖去冰的月亮', '平行世界的另一个我'
+      ];
+
+      let myNickname = '';
+      const socket = io();
+
+      // ----- 连接成功后不可见，直到用户点击"进入聊天室" -----
+
+      // 🎲 随机昵称按钮
+      randomBtn.addEventListener('click', () => {
+        const name = FLOWER_NAMES[Math.floor(Math.random() * FLOWER_NAMES.length)];
+        nicknameInput.value = name;
+        nicknameInput.focus();
+        nicknameInput.select();
+      });
+
+      // 🚀 进入聊天室
+      function joinChat() {
+        const raw = nicknameInput.value.trim();
+
+        // 禁用按钮防止重复点击
+        joinBtn.disabled = true;
+        joinBtn.textContent = '⏳ 正在进入...';
+        nicknameInput.disabled = true;
+
+        // 发送 join 事件（服务器收到后返回 welcome）
+        socket.emit('join', { nickname: raw });
+      }
+
+      joinBtn.addEventListener('click', joinChat);
+      nicknameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          joinChat();
+        }
+      });
+
+      // 自动聚焦昵称输入框
+      nicknameInput.focus();
+
+      // ----- Socket.io 事件处理 -----
+
+      // 收到欢迎包（自己的昵称）
+      socket.on('welcome', (data) => {
+        myNickname = data.nickname;
+        myNameEl.textContent = myNickname;
+        onlineEl.textContent = data.usedCount;
+        document.title = `🌍 ${myNickname} | 五湖四海聊天室`;
+
+        // 昵称已确认，切换到聊天界面
+        nicknameOverlay.classList.add('hidden');
+        chatApp.classList.add('visible');
+
+        // 聚焦输入框
+        setTimeout(() => msgInput.focus(), 400);
+      });
+
+      // 在线人数更新
+      socket.on('onlineCount', (data) => {
+        onlineEl.textContent = data.count;
+      });
+
+      // 收到消息
+      socket.on('message', (msg) => {
+        appendMessage(msg);
+      });
+
+      // ----- 渲染消息到界面 -----
+      function appendMessage(msg) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'msg-wrapper' + (msg.type === 'system' ? ' system' : '');
+
+        // 自己发的消息加 is-me 样式
+        const isMe = msg.type === 'chat' && msg.nickname === myNickname;
+        if (isMe) {
+          wrapper.classList.add('is-me');
+        }
+
+        if (msg.type === 'system') {
+          wrapper.innerHTML = `<div class="msg-bubble">${escapeHtml(msg.content)}</div>`;
+        } else {
+          // 自己的消息显示"你"，别人的消息显示对方昵称
+          const displayName = isMe ? '你' : escapeHtml(msg.nickname);
+          wrapper.innerHTML = `
+            <div class="msg-meta">
+              <span class="msg-nickname">${displayName}</span>
+              <span class="msg-time">${escapeHtml(msg.time)}</span>
+            </div>
+            <div class="msg-bubble">${escapeHtml(msg.content)}</div>
+          `;
+        }
+
+        msgArea.appendChild(wrapper);
+        msgArea.scrollTop = msgArea.scrollHeight;
+      }
+
+      // ----- 发送逻辑 -----
+      function sendMessage() {
+        const content = msgInput.value.trim();
+        if (!content) return;
+        socket.emit('chatMessage', { content });
+        msgInput.value = '';
+        msgInput.focus();
+      }
+
+      // 点击发送
+      sendBtn.addEventListener('click', sendMessage);
+
+      // 回车发送
+      msgInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      // ----- 转义 HTML 防 XSS -----
+      function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+    })();
+  </script>
+</body>
+</html>
