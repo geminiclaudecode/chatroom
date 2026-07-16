@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌍 口袋树洞</title>
+  <title>口袋树洞</title>
   <style>
-    /* ========== Apple 极简风格全局重置 ========== */
+    /* ========== 全局重置 ========== */
     *, *::before, *::after {
       margin: 0;
       padding: 0;
@@ -13,7 +13,7 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #f5f5f7;
       color: #1d1d1f;
       height: 100vh;
@@ -25,7 +25,7 @@
     }
 
     /* ================================================================
-       🎭 昵称输入覆盖层
+       昵称输入覆盖层
        ================================================================ */
     .nickname-overlay {
       position: fixed;
@@ -34,7 +34,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(245, 245, 247, 0.82);
+      background: rgba(245, 245, 247, 0.8);
       backdrop-filter: blur(30px);
       -webkit-backdrop-filter: blur(30px);
       transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -48,17 +48,15 @@
 
     .nickname-card {
       position: relative;
-      width: 400px;
+      width: 380px;
       max-width: 90vw;
       padding: 48px 40px 40px;
-      background: rgba(255, 255, 255, 0.70);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.7) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
       border-radius: 22px;
-      box-shadow:
-        0 8px 40px rgba(0, 0, 0, 0.06),
-        0 2px 8px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03) !important;
       text-align: center;
       animation: cardAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -69,14 +67,8 @@
     }
 
     .nickname-card .icon-row {
-      font-size: 48px;
-      margin-bottom: 16px;
-      animation: floatIcon 3s ease-in-out infinite;
-    }
-
-    @keyframes floatIcon {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
+      font-size: 40px;
+      margin-bottom: 20px;
     }
 
     .nickname-card h1 {
@@ -144,22 +136,21 @@
     }
 
     .nickname-card .btn-random {
-      background: rgba(0, 0, 0, 0.04);
+      background: #e8e8ed;
       color: #1d1d1f;
     }
 
     .nickname-card .btn-random:hover {
-      background: rgba(0, 0, 0, 0.08);
+      background: #dcdce0;
     }
 
     .nickname-card .btn-join {
-      background: #007AFF;
+      background: #1d1d1f;
       color: #ffffff;
     }
 
     .nickname-card .btn-join:hover {
-      background: #0070e9;
-      box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
+      background: #000000;
     }
 
     .nickname-card .btn:active {
@@ -174,7 +165,7 @@
     }
 
     /* ================================================================
-       💬 聊天主界面（初始隐藏）
+       聊天主界面
        ================================================================ */
     .chat-app {
       position: relative;
@@ -196,10 +187,10 @@
       align-items: center;
       justify-content: space-between;
       padding: 12px 20px;
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 0.7) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
       flex-shrink: 0;
     }
 
@@ -217,28 +208,16 @@
       height: 8px;
       border-radius: 50%;
       background: #34c759;
-      box-shadow: 0 0 6px rgba(52, 199, 89, 0.4);
     }
 
     .nickname-highlight {
-      color: #007AFF;
-      font-weight: 600;
+      color: #1d1d1f;
+      font-weight: 700;
     }
 
     .online-badge {
       font-size: 13px;
       color: #86868b;
-      background: rgba(0, 0, 0, 0.03);
-      padding: 5px 12px;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .online-badge .num {
-      color: #1d1d1f;
-      font-weight: 600;
     }
 
     /* ---------- 消息滚动区 ---------- */
@@ -269,7 +248,7 @@
       background: rgba(0, 0, 0, 0.18);
     }
 
-    /* 消息气泡 — 他人消息 */
+    /* 他人消息气泡 */
     .msg-wrapper {
       display: flex;
       flex-direction: column;
@@ -311,7 +290,7 @@
       letter-spacing: -0.01em;
     }
 
-    /* 自己发送的消息 — iMessage 蓝色气泡 */
+    /* 自己发送的消息 */
     .msg-wrapper.is-me {
       align-items: flex-end;
     }
@@ -323,16 +302,16 @@
     }
 
     .msg-wrapper.is-me .msg-meta .msg-nickname {
-      color: #007AFF;
+      color: #86868b;
     }
 
     .msg-wrapper.is-me .msg-bubble {
       border-radius: 18px 4px 18px 18px;
-      background: #007AFF;
+      background: #0071e3;
       color: #ffffff;
     }
 
-    /* 系统消息居中 */
+    /* 系统消息 */
     .msg-wrapper.system {
       align-items: center;
       text-align: center;
@@ -356,10 +335,10 @@
       align-items: center;
       gap: 10px;
       padding: 12px 20px;
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 0.7) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
       flex-shrink: 0;
     }
 
@@ -388,7 +367,7 @@
 
     .input-area button {
       padding: 11px 22px;
-      background: #007AFF;
+      background: #0071e3;
       border: none;
       border-radius: 24px;
       color: #ffffff;
@@ -401,8 +380,7 @@
     }
 
     .input-area button:hover {
-      background: #0070e9;
-      box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
+      background: #0066cc;
     }
 
     .input-area button:active {
@@ -413,38 +391,32 @@
 <body>
 
   <!-- ================================================================
-  🎭 昵称输入覆盖层
+  昵称输入覆盖层
   ================================================================ -->
   <div class="nickname-overlay" id="nicknameOverlay">
     <div class="nickname-card">
       <div class="icon-row">🌍</div>
       <h1>口袋树洞</h1>
-      <p class="subtitle">
-        输入你的昵称，和来自世界各地的朋友<br>
-        一起聊天、一起玩吧 ✨
-      </p>
+      <p class="subtitle">输入昵称，和来自世界各地的朋友<br>一起聊天</p>
       <div class="input-group">
         <input
           type="text"
           id="nicknameInput"
-          placeholder="请输入你的昵称（留空则随机分配）"
+          placeholder="你的昵称（留空则随机分配）"
           maxlength="20"
           autocomplete="off"
         />
       </div>
       <div class="btn-row">
-        <button class="btn btn-random" id="randomBtn">🎲 随机昵称</button>
-        <button class="btn btn-join" id="joinBtn">🚀 进入聊天室</button>
+        <button class="btn btn-random" id="randomBtn">随机昵称</button>
+        <button class="btn btn-join" id="joinBtn">进入聊天室</button>
       </div>
-      <p class="hint">
-        💡 文明聊天，友善交流。昵称最多 20 个字。<br>
-        留空的话，树洞小精灵会送你一个可爱的花名 🌸
-      </p>
+      <p class="hint">文明聊天，友善交流</p>
     </div>
   </div>
 
   <!-- ================================================================
-  💬 聊天主界面
+  聊天主界面
   ================================================================ -->
   <div class="chat-app" id="chatApp">
     <!-- 顶部状态栏 -->
@@ -454,7 +426,7 @@
         <span>你好，<strong class="nickname-highlight" id="myName">...</strong></span>
       </div>
       <div class="online-badge">
-        🌐 在线 <span class="num" id="onlineCount">0</span> 人
+        在线 <span class="num" id="onlineCount">0</span> 人
       </div>
     </div>
 
@@ -466,10 +438,10 @@
       <input
         type="text"
         id="messageInput"
-        placeholder="说点什么吧… 全世界都听得见 🌍"
+        placeholder="说点什么…"
         maxlength="500"
       />
-      <button id="sendBtn">🌱 发送</button>
+      <button id="sendBtn">发送</button>
     </div>
   </div>
 
@@ -506,7 +478,7 @@
 
       // ----- 连接成功后不可见，直到用户点击"进入聊天室" -----
 
-      // 🎲 随机昵称按钮
+      // 随机昵称按钮
       randomBtn.addEventListener('click', () => {
         const name = FLOWER_NAMES[Math.floor(Math.random() * FLOWER_NAMES.length)];
         nicknameInput.value = name;
@@ -514,13 +486,13 @@
         nicknameInput.select();
       });
 
-      // 🚀 进入聊天室
+      // 进入聊天室
       function joinChat() {
         const raw = nicknameInput.value.trim();
 
         // 禁用按钮防止重复点击
         joinBtn.disabled = true;
-        joinBtn.textContent = '⏳ 正在进入...';
+        joinBtn.textContent = '正在进入…';
         nicknameInput.disabled = true;
 
         // 发送 join 事件（服务器收到后返回 welcome）
@@ -545,7 +517,7 @@
         myNickname = data.nickname;
         myNameEl.textContent = myNickname;
         onlineEl.textContent = data.usedCount;
-        document.title = `🌍 ${myNickname} | 口袋树洞`;
+        document.title = `${myNickname} | 口袋树洞`;
 
         // 昵称已确认，切换到聊天界面
         nicknameOverlay.classList.add('hidden');
