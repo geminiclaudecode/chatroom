@@ -143,6 +143,23 @@ io.on('connection', (socket) => {
     io.to(ROOM_ID).emit('message', msg);
   });
 
+  // ---------- 消息互动（点赞/抱抱）----------
+  socket.on('msg-action', (data) => {
+    if (!hasJoined) return;
+    if (!data || !data.msgId || !data.type) return;
+    io.emit('msg-action-update', {
+      msgId: data.msgId,
+      type: data.type,
+      count: 1
+    });
+  });
+
+  // ---------- 全场递咖啡 ----------
+  socket.on('global-coffee', () => {
+    if (!hasJoined) return;
+    socket.broadcast.emit('global-coffee');
+  });
+
   // ---------- 断开连接 ----------
   socket.on('disconnect', () => {
     if (!hasJoined) {

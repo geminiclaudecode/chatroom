@@ -210,10 +210,8 @@
       transition:all 0.3s ease; user-select:none;
     }
     .emoji-trigger-btn:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.15); color:rgba(255,255,255,0.85); }
-    .emoji-panel { position:absolute; bottom:72px; left:24px; display:none; flex-wrap:wrap; gap:4px; padding:10px 12px; background:rgba(20,20,35,0.88); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.1); border-radius:16px; z-index:10; box-shadow:0 12px 40px rgba(0,0,0,0.5); }
-    .emoji-panel.show { display:flex; }
-    .emoji-panel .emoji-item { width:36px; height:36px; border:none; border-radius:8px; background:transparent; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; user-select:none; }
-    .emoji-panel .emoji-item:hover { background:rgba(255,255,255,0.1); }
+    emoji-picker { position:absolute; bottom:72px; left:24px; display:none; z-index:10; --background:rgba(20,20,35,0.92); --border-color:rgba(255,255,255,0.1); --border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,0.5); }
+    emoji-picker.visible { display:block; }
 
     @media (max-width:480px) {
       .nickname-card { width:94%; padding:40px 24px 32px; }
@@ -259,12 +257,7 @@
       <input type="text" id="messageInput" placeholder="说点什么…" maxlength="500" />
       <button id="sendBtn">发送</button>
     </div>
-    <div class="emoji-panel" id="emojiPanel">
-      <button class="emoji-item">🌲</button><button class="emoji-item">🌊</button><button class="emoji-item">🪐</button>
-      <button class="emoji-item">🌙</button><button class="emoji-item">☕</button><button class="emoji-item">🤍</button>
-      <button class="emoji-item">🫂</button><button class="emoji-item">🍃</button><button class="emoji-item">💫</button>
-      <button class="emoji-item">🌿</button><button class="emoji-item">🕯️</button><button class="emoji-item">✨</button>
-    </div>
+    <emoji-picker id="emojiPanel" class="dark"></emoji-picker>
   </div>
 
   <!-- 右键/长按弹出菜单 -->
@@ -273,6 +266,7 @@
     <button data-type="hug">🫂 抱抱他</button>
   </div>
 
+  <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>
   <!-- Canvas 星空 -->
   <script>
     document.addEventListener("DOMContentLoaded",function(){
@@ -283,7 +277,7 @@
       const COUNT=80;
       function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
       resize();window.addEventListener('resize',resize);
-      function initStars(){stars=[];for(let i=0;i<COUNT;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:1.5+Math.random()*2,vx:(Math.random()-0.5)*0.05,vy:-(Math.random()*0.2+0.05),alpha:Math.random(),alphaSpeed:0.004+Math.random()*0.006,alphaDir:Math.random()>0.5?1:-1});}
+      function initStars(){stars=[];for(let i=0;i<COUNT;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:1.5+Math.random()*2,vx:(Math.random()-0.5)*0.015,vy:-(Math.random()*0.05+0.02),alpha:Math.random(),alphaSpeed:0.004+Math.random()*0.006,alphaDir:Math.random()>0.5?1:-1});}
       initStars();window.addEventListener('resize',initStars);
       window.spawnMeteor=function(){meteors.push({x:Math.random()*canvas.width*0.8,y:-20,vx:4+Math.random()*6,vy:1.5+Math.random()*3,life:1,decay:0.012+Math.random()*0.008,r:1.2+Math.random()*1});};
       function draw(){
@@ -353,11 +347,11 @@
         return f;
       }
 
-      // Emoji
+      // Emoji Picker (emoji-picker-element)
       const emojiBtn=document.getElementById('emojiBtn'),emojiPanel=document.getElementById('emojiPanel');
-      emojiBtn.addEventListener('click',(e)=>{e.stopPropagation();emojiPanel.classList.toggle('show');});
-      document.addEventListener('click',(e)=>{if(!emojiPanel.contains(e.target)&&e.target!==emojiBtn)emojiPanel.classList.remove('show');});
-      emojiPanel.addEventListener('click',(e)=>{const it=e.target.closest('.emoji-item');if(!it)return;const em=it.textContent.trim(),s=msgInput.selectionStart,en=msgInput.selectionEnd;msgInput.value=msgInput.value.substring(0,s)+em+msgInput.value.substring(en);msgInput.selectionStart=msgInput.selectionEnd=s+em.length;msgInput.focus();});
+      emojiBtn.addEventListener('click',(e)=>{e.stopPropagation();emojiPanel.classList.toggle('visible');});
+      document.addEventListener('click',(e)=>{if(!emojiPanel.contains(e.target)&&e.target!==emojiBtn)emojiPanel.classList.remove('visible');});
+      emojiPanel.addEventListener('emoji-click',(e)=>{const em=e.detail.unicode;const s=msgInput.selectionStart,en=msgInput.selectionEnd;msgInput.value=msgInput.value.substring(0,s)+em+msgInput.value.substring(en);msgInput.selectionStart=msgInput.selectionEnd=s+em.length;msgInput.focus();emojiPanel.classList.remove('visible');});
 
       // 咖啡按钮
       document.getElementById('coffeeBtn').addEventListener('click',()=>{if(window.spawnMeteor)window.spawnMeteor();appendMessage({type:'system',content:'你为大家递出了一杯热咖啡，夜空划过了一颗流星 🌙'});try{socket.emit('global-coffee');}catch(er){}});
@@ -404,16 +398,31 @@
             '<div class="msg-meta"><span class="msg-nickname">'+dn+'</span><span class="msg-time">'+escapeHtml(msg.time)+'</span></div>'+
             '<div class="msg-bubble">'+escapeHtml(msg.content)+'<span class="badge-count'+(total>0?' show':'')+'">'+total+'</span></div>';
           const bubble=wrapper.querySelector('.msg-bubble');
-          let longPressTimer=null;
-
-          bubble.addEventListener('contextmenu',(e)=>{e.preventDefault();hideMenu();showMenu(e.clientX,e.clientY,msgId);});
-          bubble.addEventListener('touchstart',(e)=>{longPressTimer=setTimeout(()=>{const t=e.touches[0];hideMenu();showMenu(t.clientX,t.clientY,msgId);},500);},{passive:true});
-          bubble.addEventListener('touchend',()=>{if(longPressTimer)clearTimeout(longPressTimer);});
-          bubble.addEventListener('touchmove',()=>{if(longPressTimer)clearTimeout(longPressTimer);});
         }
         if(prepend)msgArea.insertBefore(wrapper,msgArea.firstChild);else msgArea.appendChild(wrapper);
         msgArea.scrollTop=msgArea.scrollHeight;
       }
+
+      // 事件委托：右键 / 长按弹出互动菜单
+      let longPressTimer=null;
+      msgArea.addEventListener('contextmenu',(e)=>{
+        const wrapper=e.target.closest('.msg-wrapper');
+        if(!wrapper||wrapper.classList.contains('system'))return;
+        e.preventDefault();hideMenu();
+        const msgId=wrapper.getAttribute('data-msg-id');
+        if(msgId)showMenu(e.clientX,e.clientY,msgId);
+      });
+      msgArea.addEventListener('touchstart',(e)=>{
+        const wrapper=e.target.closest('.msg-wrapper');
+        if(!wrapper||wrapper.classList.contains('system'))return;
+        longPressTimer=setTimeout(()=>{
+          const t=e.touches[0];hideMenu();
+          const msgId=wrapper.getAttribute('data-msg-id');
+          if(msgId)showMenu(t.clientX,t.clientY,msgId);
+        },500);
+      },{passive:true});
+      msgArea.addEventListener('touchend',()=>{if(longPressTimer)clearTimeout(longPressTimer);});
+      msgArea.addEventListener('touchmove',()=>{if(longPressTimer)clearTimeout(longPressTimer);});
 
       socket.on('msg-action-update',(data)=>{
         const wrapper=msgArea.querySelector('[data-msg-id="'+data.msgId+'"]');
