@@ -532,6 +532,63 @@
     }
 
     /* ================================================================
+       Emoji 表情面板
+       ================================================================ */
+    .emoji-trigger-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 17px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+    .emoji-trigger-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .emoji-panel {
+      position: absolute;
+      bottom: 72px; left: 24px;
+      display: none;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 10px 12px;
+      background: rgba(20, 20, 35, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      z-index: 10;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+    .emoji-panel.show {
+      display: flex;
+    }
+    .emoji-panel .emoji-item {
+      width: 36px; height: 36px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+      user-select: none;
+    }
+    .emoji-panel .emoji-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* ================================================================
        移动端微调（保留全屏宽度）
        ================================================================ */
     @media (max-width: 480px) {
@@ -608,6 +665,7 @@
 
     <!-- 底部输入区 -->
     <div class="input-area">
+      <button class="emoji-trigger-btn" id="emojiBtn" title="表情">😊</button>
       <input
         type="text"
         id="messageInput"
@@ -615,6 +673,21 @@
         maxlength="500"
       />
       <button id="sendBtn">发送</button>
+    </div>
+    <!-- Emoji 面板 -->
+    <div class="emoji-panel" id="emojiPanel">
+      <button class="emoji-item">🌲</button>
+      <button class="emoji-item">🌊</button>
+      <button class="emoji-item">🪐</button>
+      <button class="emoji-item">🌙</button>
+      <button class="emoji-item">☕</button>
+      <button class="emoji-item">🤍</button>
+      <button class="emoji-item">🫂</button>
+      <button class="emoji-item">🍃</button>
+      <button class="emoji-item">💫</button>
+      <button class="emoji-item">🌿</button>
+      <button class="emoji-item">🕯️</button>
+      <button class="emoji-item">✨</button>
     </div>
   </div>
 
@@ -690,6 +763,51 @@
       const msgArea     = document.getElementById('messagesArea');
       const msgInput    = document.getElementById('messageInput');
       const sendBtn     = document.getElementById('sendBtn');
+
+      // ----- 敏感词过滤 -----
+      const SENSITIVE_WORDS = [
+        '脏话示例1', '侮辱性词汇', '人身攻击',
+        '恶意刷屏词', '广告引流词'
+      ];
+
+      function filterContent(text) {
+        let filtered = text;
+        for (const word of SENSITIVE_WORDS) {
+          if (word.trim() === '') continue;
+          const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(escaped, 'gi');
+          filtered = filtered.replace(regex, '***');
+        }
+        return filtered;
+      }
+
+      // ----- Emoji 面板逻辑 -----
+      const emojiBtn   = document.getElementById('emojiBtn');
+      const emojiPanel = document.getElementById('emojiPanel');
+
+      emojiBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        emojiPanel.classList.toggle('show');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!emojiPanel.contains(e.target) && e.target !== emojiBtn) {
+          emojiPanel.classList.remove('show');
+        }
+      });
+
+      emojiPanel.addEventListener('click', (e) => {
+        const item = e.target.closest('.emoji-item');
+        if (!item) return;
+        const emoji = item.textContent.trim();
+        const start = msgInput.selectionStart;
+        const end   = msgInput.selectionEnd;
+        const before = msgInput.value.substring(0, start);
+        const after  = msgInput.value.substring(end);
+        msgInput.value = before + emoji + after;
+        msgInput.selectionStart = msgInput.selectionEnd = start + emoji.length;
+        msgInput.focus();
+      });
 
       // ----- 花名池（用于随机昵称按钮）-----
       const FLOWER_NAMES = [
@@ -802,8 +920,9 @@
 
       // ----- 发送逻辑 -----
       function sendMessage() {
-        const content = msgInput.value.trim();
-        if (!content) return;
+        const raw = msgInput.value.trim();
+        if (!raw) return;
+        const content = filterContent(raw);
         socket.emit('chatMessage', { content });
         msgInput.value = '';
         msgInput.focus();
