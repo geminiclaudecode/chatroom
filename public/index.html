@@ -51,12 +51,18 @@
       background: rgba(6, 4, 10, 0.65);
       backdrop-filter: blur(30px);
       -webkit-backdrop-filter: blur(30px);
-      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .nickname-overlay.hidden {
       opacity: 0;
       visibility: hidden;
+      pointer-events: none;
+    }
+
+    .nickname-overlay.fade-out {
+      opacity: 0 !important;
+      transform: translateY(30px) !important;
       pointer-events: none;
     }
 
@@ -422,28 +428,35 @@
       display: none;
     }
 
-    /* ---------- 底部输入区 ---------- */
+    /* ---------- 底部输入区 — 透明悬浮，消灭外框 ---------- */
     .input-area {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 12px 24px;
-      background: transparent;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
       flex-shrink: 0;
     }
 
+    /* 输入框 — 液态玻璃 */
     .input-area input {
       flex: 1;
       padding: 12px 18px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 24px;
-      color: #fff;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 24px !important;
+      color: #ffffff;
       font-size: 16px;
       outline: none;
       letter-spacing: -0.01em;
-      transition: all 0.3s ease;
+      box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.1),
+        inset 0 0 10px rgba(255, 255, 255, 0.02) !important;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .input-area input::placeholder {
@@ -451,39 +464,47 @@
     }
 
     .input-area input:focus {
-      background: rgba(0, 0, 0, 0.4);
-      border-color: rgba(15, 76, 58, 0.4);
-      box-shadow: 0 0 0 3px rgba(15, 76, 58, 0.1);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
+      border-color: rgba(16, 185, 129, 0.3) !important;
+      box-shadow:
+        0 0 15px rgba(16, 185, 129, 0.15),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
     }
 
-    /* 发送按钮 — 蓝色渐变 + 水滴涟漪发光 */
+    /* 发送按钮 — 半透明翡翠玻璃 */
     .input-area button {
       position: relative;
       padding: 11px 22px;
-      background: linear-gradient(135deg, #0f4c3a, #09372a);
-      border: none;
-      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(9, 55, 42, 0.3) 100%) !important;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(16, 185, 129, 0.3) !important;
+      border-radius: 24px !important;
       color: #ffffff;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       letter-spacing: -0.01em;
-      transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
       flex-shrink: 0;
-      box-shadow: 0 4px 15px rgba(15, 76, 58, 0.2);
+      box-shadow:
+        0 4px 15px rgba(16, 185, 129, 0.15),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
     }
 
     .input-area button:hover {
       transform: translateY(-1px) scale(1.03);
       box-shadow:
-        0 0 0 3px rgba(15, 76, 58, 0.15),
-        0 6px 20px rgba(15, 76, 58, 0.25);
-      filter: brightness(1.1);
+        0 6px 20px rgba(16, 185, 129, 0.35),
+        inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+      filter: brightness(1.15);
     }
 
     .input-area button:active {
       transform: scale(0.96);
-      box-shadow: 0 2px 8px rgba(15, 76, 58, 0.2);
+      box-shadow:
+        0 2px 8px rgba(16, 185, 129, 0.2),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
     }
 
     /* ================================================================
@@ -726,9 +747,14 @@
         onlineEl.textContent = data.usedCount;
         document.title = `${myNickname} | 口袋树洞`;
 
-        // 昵称已确认，切换到聊天界面
-        nicknameOverlay.classList.add('hidden');
+        // 昵称已确认，先触发淡出下沉动画
+        nicknameOverlay.classList.add('fade-out');
         chatApp.classList.add('visible');
+
+        // 等 600ms 动画播完再从 DOM 中隐藏遮罩
+        setTimeout(() => {
+          nicknameOverlay.style.display = 'none';
+        }, 600);
 
         // 聚焦输入框
         setTimeout(() => msgInput.focus(), 400);
