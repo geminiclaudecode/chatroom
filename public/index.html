@@ -14,18 +14,19 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f5f7;
-      color: #1d1d1f;
-      height: 100vh;
+      background: radial-gradient(circle at 80% 20%, #1e1b4b, #090514);
+      color: #f0f0f0;
+      min-height: 100vh;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
 
     /* ================================================================
-       昵称输入覆盖层
+       昵称输入覆盖层 — 深色毛玻璃遮罩
        ================================================================ */
     .nickname-overlay {
       position: fixed;
@@ -34,7 +35,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(245, 245, 247, 0.8);
+      background: rgba(9, 5, 20, 0.75);
       backdrop-filter: blur(30px);
       -webkit-backdrop-filter: blur(30px);
       transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -47,16 +48,14 @@
     }
 
     .nickname-card {
-      position: relative;
-      width: 380px;
-      max-width: 90vw;
-      padding: 48px 40px 40px;
-      background: rgba(255, 255, 255, 0.7) !important;
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px) !important;
-      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      width: 92%;
+      max-width: 400px;
+      padding: 48px 36px 40px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 22px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03) !important;
       text-align: center;
       animation: cardAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -67,23 +66,23 @@
     }
 
     .nickname-card .icon-row {
-      font-size: 40px;
+      font-size: 44px;
       margin-bottom: 20px;
     }
 
     .nickname-card h1 {
       font-size: 28px;
       font-weight: 700;
-      color: #1d1d1f;
+      color: #ffffff;
       letter-spacing: -0.02em;
       margin-bottom: 8px;
     }
 
     .nickname-card .subtitle {
-      font-size: 15px;
-      color: #86868b;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
       margin-bottom: 32px;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     .nickname-card .input-group {
@@ -96,10 +95,10 @@
     .nickname-card input {
       width: 100%;
       padding: 14px 18px;
-      background: rgba(0, 0, 0, 0.03);
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 14px;
-      color: #1d1d1f;
+      color: #fff;
       font-size: 16px;
       text-align: center;
       outline: none;
@@ -108,14 +107,14 @@
     }
 
     .nickname-card input::placeholder {
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.3);
       font-size: 14px;
     }
 
     .nickname-card input:focus {
-      background: #ffffff;
-      border-color: rgba(0, 0, 0, 0.15);
-      box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.04);
+      background: rgba(0, 0, 0, 0.5);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.04);
     }
 
     .nickname-card .btn-row {
@@ -136,21 +135,24 @@
     }
 
     .nickname-card .btn-random {
-      background: #e8e8ed;
-      color: #1d1d1f;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .nickname-card .btn-random:hover {
-      background: #dcdce0;
+      background: rgba(255, 255, 255, 0.14);
     }
 
     .nickname-card .btn-join {
-      background: #1d1d1f;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: #ffffff;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
     }
 
     .nickname-card .btn-join:hover {
-      background: #000000;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
     }
 
     .nickname-card .btn:active {
@@ -160,19 +162,27 @@
     .nickname-card .hint {
       margin-top: 20px;
       font-size: 12px;
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.3);
       line-height: 1.5;
     }
 
     /* ================================================================
-       聊天主界面
+       聊天主界面 — 液态玻璃大容器
        ================================================================ */
     .chat-app {
       position: relative;
       z-index: 1;
+      width: 92%;
+      max-width: 520px;
+      height: calc(100vh - 32px);
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      overflow: hidden;
       opacity: 0;
       transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
     }
@@ -186,11 +196,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 20px;
-      background: rgba(255, 255, 255, 0.7) !important;
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px) !important;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       flex-shrink: 0;
     }
 
@@ -198,8 +206,8 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 15px;
-      color: #1d1d1f;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
       font-weight: 500;
     }
 
@@ -208,19 +216,20 @@
       height: 8px;
       border-radius: 50%;
       background: #34c759;
+      box-shadow: 0 0 8px rgba(52, 199, 89, 0.5);
     }
 
     .nickname-highlight {
-      color: #1d1d1f;
+      color: #ffffff;
       font-weight: 700;
     }
 
     .online-badge {
-      font-size: 13px;
-      color: #86868b;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.45);
     }
 
-    /* ---------- 消息滚动区 ---------- */
+    /* ---------- 消息滚动区 — 完全透明 ---------- */
     .messages-area {
       flex: 1;
       overflow-y: auto;
@@ -229,6 +238,7 @@
       flex-direction: column;
       gap: 10px;
       scroll-behavior: smooth;
+      background: transparent;
     }
 
     .messages-area::-webkit-scrollbar {
@@ -240,15 +250,15 @@
     }
 
     .messages-area::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.10);
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 10px;
     }
 
     .messages-area::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 0, 0, 0.18);
+      background: rgba(255, 255, 255, 0.16);
     }
 
-    /* 他人消息气泡 */
+    /* 消息气泡 — 通用 */
     .msg-wrapper {
       display: flex;
       flex-direction: column;
@@ -261,66 +271,72 @@
     }
 
     .msg-meta {
-      font-size: 12px;
-      color: #aeaeb2;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.35);
       margin-bottom: 4px;
-      padding-left: 8px;
+      padding-left: 10px;
     }
 
     .msg-meta .msg-nickname {
-      color: #86868b;
+      color: rgba(255, 255, 255, 0.5);
       font-weight: 600;
     }
 
     .msg-meta .msg-time {
       margin-left: 6px;
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.25);
     }
 
     .msg-bubble {
       display: inline-block;
       max-width: 72%;
-      padding: 11px 16px;
-      border-radius: 4px 18px 18px 18px;
-      background: #e9e9eb;
-      color: #1d1d1f;
-      font-size: 16px;
-      line-height: 1.45;
+      padding: 12px 18px;
+      border-radius: 18px;
+      font-size: 15px;
+      line-height: 1.5;
       word-break: break-word;
       letter-spacing: -0.01em;
     }
 
-    /* 自己发送的消息 */
+    /* 他人消息气泡 — 淡白玻璃 */
+    .msg-wrapper:not(.is-me):not(.system) .msg-bubble {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* 自己发送的消息 — 蓝色偏光玻璃 */
     .msg-wrapper.is-me {
       align-items: flex-end;
     }
 
     .msg-wrapper.is-me .msg-meta {
       padding-left: 0;
-      padding-right: 8px;
+      padding-right: 10px;
       text-align: right;
     }
 
     .msg-wrapper.is-me .msg-meta .msg-nickname {
-      color: #86868b;
+      color: rgba(147, 197, 253, 0.7);
     }
 
     .msg-wrapper.is-me .msg-bubble {
-      border-radius: 18px 4px 18px 18px;
-      background: #0071e3;
+      background: rgba(37, 99, 235, 0.25);
+      border: 1px solid rgba(37, 99, 235, 0.4);
       color: #ffffff;
     }
 
-    /* 系统消息 */
+    /* 系统消息居中 */
     .msg-wrapper.system {
       align-items: center;
       text-align: center;
     }
 
     .msg-wrapper.system .msg-bubble {
-      background: rgba(0, 0, 0, 0.03);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 12px;
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.3);
       font-size: 12px;
       padding: 6px 16px;
     }
@@ -335,39 +351,37 @@
       align-items: center;
       gap: 10px;
       padding: 12px 20px;
-      background: rgba(255, 255, 255, 0.7) !important;
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px) !important;
-      border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+      background: rgba(255, 255, 255, 0.03);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       flex-shrink: 0;
     }
 
     .input-area input {
       flex: 1;
       padding: 11px 18px;
-      background: rgba(0, 0, 0, 0.03);
-      border: 1px solid rgba(0, 0, 0, 0.06);
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 24px;
-      color: #1d1d1f;
-      font-size: 16px;
+      color: #fff;
+      font-size: 15px;
       outline: none;
       letter-spacing: -0.01em;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .input-area input::placeholder {
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.3);
     }
 
     .input-area input:focus {
-      background: #ffffff;
-      border-color: rgba(0, 0, 0, 0.12);
-      box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.04);
+      background: rgba(0, 0, 0, 0.45);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.04);
     }
 
     .input-area button {
       padding: 11px 22px;
-      background: #0071e3;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
       border: none;
       border-radius: 24px;
       color: #ffffff;
@@ -377,14 +391,48 @@
       letter-spacing: -0.01em;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
     }
 
     .input-area button:hover {
-      background: #0066cc;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
     }
 
     .input-area button:active {
       transform: scale(0.96);
+    }
+
+    /* ================================================================
+       移动端适配
+       ================================================================ */
+    @media (max-width: 480px) {
+      .chat-app {
+        width: 94%;
+        height: calc(100vh - 16px);
+        border-radius: 18px;
+      }
+
+      .nickname-card {
+        width: 94%;
+        padding: 40px 24px 32px;
+      }
+
+      .msg-bubble {
+        max-width: 82%;
+      }
+
+      .status-bar {
+        padding: 12px 16px;
+      }
+
+      .input-area {
+        padding: 10px 16px;
+      }
+
+      .messages-area {
+        padding: 16px;
+      }
     }
   </style>
 </head>
@@ -446,7 +494,7 @@
   </div>
 
   <!-- Socket.io CDN -->
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
     (function () {
       // ----- DOM 引用 -----
