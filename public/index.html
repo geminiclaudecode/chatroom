@@ -31,7 +31,7 @@
       position: fixed; inset: 0; z-index: 100;
       display: flex; align-items: center; justify-content: center;
       background: rgba(6, 4, 10, 0.25) !important;
-      backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1), transform 0.6s cubic-bezier(0.4,0,0.2,1) !important;
     }
     .nickname-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -91,7 +91,7 @@
     .chat-app {
       position:relative; z-index:1; display:flex; flex-direction:column; height:100vh;
       background: rgba(255,255,255,0.02) !important;
-      backdrop-filter: blur(35px) !important; -webkit-backdrop-filter: blur(35px) !important;
+      backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important;
       border:1px solid rgba(255,255,255,0.08);
       box-shadow:0 20px 50px rgba(0,0,0,0.5),inset 0 1px 1px rgba(255,255,255,0.15),inset 0 -10px 20px rgba(255,255,255,0.01),inset 0 0 20px 10px rgba(255,255,255,0.02);
       overflow:hidden; opacity:0; transition:opacity 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s;
@@ -283,12 +283,12 @@
       const COUNT=80;
       function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
       resize();window.addEventListener('resize',resize);
-      function initStars(){stars=[];for(let i=0;i<COUNT;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:0.6+Math.random()*1.2,vx:(Math.random()-0.5)*0.05,vy:-(Math.random()*0.2+0.05),alpha:Math.random(),alphaSpeed:0.004+Math.random()*0.006,alphaDir:Math.random()>0.5?1:-1});}
+      function initStars(){stars=[];for(let i=0;i<COUNT;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:1.5+Math.random()*2,vx:(Math.random()-0.5)*0.05,vy:-(Math.random()*0.2+0.05),alpha:Math.random(),alphaSpeed:0.004+Math.random()*0.006,alphaDir:Math.random()>0.5?1:-1});}
       initStars();window.addEventListener('resize',initStars);
       window.spawnMeteor=function(){meteors.push({x:Math.random()*canvas.width*0.8,y:-20,vx:4+Math.random()*6,vy:1.5+Math.random()*3,life:1,decay:0.012+Math.random()*0.008,r:1.2+Math.random()*1});};
       function draw(){
         ctx.fillStyle='#06040a';ctx.fillRect(0,0,canvas.width,canvas.height);
-        for(const s of stars){s.x+=s.vx;s.y+=s.vy;s.alpha+=s.alphaSpeed*s.alphaDir;if(s.alpha>=0.8)s.alphaDir=-1;if(s.alpha<=0.1)s.alphaDir=1;if(s.x<-10)s.x=canvas.width+10;if(s.x>canvas.width+10)s.x=-10;if(s.y<-10)s.y=canvas.height+10;if(s.y>canvas.height+10)s.y=-10;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.shadowBlur=4;ctx.shadowColor='rgba(16,185,129,0.3)';ctx.fillStyle=`rgba(240,245,255,${s.alpha.toFixed(3)})`;ctx.fill();}
+        for(const s of stars){s.x+=s.vx;s.y+=s.vy;s.alpha+=s.alphaSpeed*s.alphaDir;if(s.alpha>=0.8)s.alphaDir=-1;if(s.alpha<=0.1)s.alphaDir=1;if(s.x<-10)s.x=canvas.width+10;if(s.x>canvas.width+10)s.x=-10;if(s.y<-10)s.y=canvas.height+10;if(s.y>canvas.height+10)s.y=-10;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.shadowBlur=8;ctx.shadowColor='rgba(16,185,129,0.4)';ctx.fillStyle=`rgba(240,245,255,${s.alpha.toFixed(3)})`;ctx.fill();}
         ctx.shadowBlur=0;
         for(let i=meteors.length-1;i>=0;i--){const m=meteors[i];m.x+=m.vx;m.y+=m.vy;m.life-=m.decay;if(m.life<=0||m.x>canvas.width+50||m.y>canvas.height+50){meteors.splice(i,1);continue;}const tx=m.x-m.vx*8,ty=m.y-m.vy*8;const g=ctx.createLinearGradient(tx,ty,m.x,m.y);g.addColorStop(0,'rgba(140,220,200,0)');g.addColorStop(0.6,`rgba(140,220,200,${(m.life*0.5).toFixed(3)})`);g.addColorStop(1,`rgba(180,240,220,${(m.life*0.9).toFixed(3)})`);ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(m.x,m.y);ctx.strokeStyle=g;ctx.lineWidth=m.r;ctx.lineCap='round';ctx.stroke();ctx.beginPath();ctx.arc(m.x,m.y,m.r*1.5,0,Math.PI*2);ctx.fillStyle=`rgba(200,250,235,${(m.life*0.8).toFixed(3)})`;ctx.fill();}
         requestAnimationFrame(draw);
@@ -327,6 +327,19 @@
         const btn=e.target.closest('button');if(!btn)return;
         const type=btn.getAttribute('data-type');
         if(currentMenuMsgId&&type){
+          const wrapper=msgArea.querySelector('[data-msg-id="'+currentMenuMsgId+'"]');
+          if(wrapper){
+            const bubble=wrapper.querySelector('.msg-bubble');
+            if(bubble){
+              let badge=bubble.querySelector('.badge-count');
+              if(!badge){badge=document.createElement('span');badge.className='badge-count';bubble.appendChild(badge);}
+              const cur=parseInt(badge.textContent)||0;
+              badge.textContent=cur+1;
+              if(cur+1>0)badge.classList.add('show');
+            }
+          }
+          const label=type==='like'?'点赞 👍':'抱抱 🫂';
+          appendMessage({type:'system',content:'你轻轻给对方送上了一个'+label});
           try{socket.emit('msg-action',{msgId:currentMenuMsgId,type});}catch(er){}
         }
         hideMenu();
@@ -347,7 +360,7 @@
       emojiPanel.addEventListener('click',(e)=>{const it=e.target.closest('.emoji-item');if(!it)return;const em=it.textContent.trim(),s=msgInput.selectionStart,en=msgInput.selectionEnd;msgInput.value=msgInput.value.substring(0,s)+em+msgInput.value.substring(en);msgInput.selectionStart=msgInput.selectionEnd=s+em.length;msgInput.focus();});
 
       // 咖啡按钮
-      document.getElementById('coffeeBtn').addEventListener('click',()=>{try{socket.emit('global-coffee');}catch(er){}});
+      document.getElementById('coffeeBtn').addEventListener('click',()=>{if(window.spawnMeteor)window.spawnMeteor();appendMessage({type:'system',content:'你为大家递出了一杯热咖啡，夜空划过了一颗流星 🌙'});try{socket.emit('global-coffee');}catch(er){}});
 
       // 消息ID
       let msgIdC=0;
