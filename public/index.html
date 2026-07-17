@@ -528,6 +528,43 @@
     }
 
     /* ================================================================
+       消息互动按钮
+       ================================================================ */
+    .msg-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 3px;
+      padding-left: 10px;
+    }
+    .msg-wrapper.is-me .msg-actions {
+      padding-left: 0;
+      padding-right: 10px;
+      justify-content: flex-end;
+    }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      user-select: none;
+    }
+    .action-btn:hover {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.2);
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .action-btn .count {
+      font-weight: 600;
+    }
+
+    /* ================================================================
        Emoji 表情面板
        ================================================================ */
     .emoji-trigger-btn {
@@ -661,6 +698,7 @@
 
     <!-- 底部输入区 -->
     <div class="input-area">
+      <button class="emoji-trigger-btn" id="coffeeBtn" title="递咖啡">☕</button>
       <button class="emoji-trigger-btn" id="emojiBtn" title="表情">😊</button>
       <input
         type="text"
@@ -697,6 +735,7 @@
       const ctx = canvas.getContext('2d');
       const stars = [];
       const COUNT = 60;
+      const meteors = [];
 
       function resize() {
         canvas.width = window.innerWidth;
@@ -718,6 +757,18 @@
         });
       }
 
+      window.spawnMeteor = function () {
+        meteors.push({
+          x: Math.random() * canvas.width * 0.8,
+          y: -20,
+          vx: 4 + Math.random() * 6,
+          vy: 1.5 + Math.random() * 3,
+          life: 1.0,
+          decay: 0.012 + Math.random() * 0.008,
+          r: 1.2 + Math.random() * 1.0
+        });
+      };
+
       function draw() {
         ctx.fillStyle = 'rgba(6, 8, 15, 0.35)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -731,17 +782,45 @@
           s.alpha += s.alphaSpeed * s.alphaDir;
           if (s.alpha >= 0.75) { s.alphaDir = -1; }
           if (s.alpha <= 0.06) { s.alphaDir = 1; }
-
           if (s.x < -10) s.x = canvas.width + 10;
           if (s.x > canvas.width + 10) s.x = -10;
           if (s.y < -10) s.y = canvas.height + 10;
           if (s.y > canvas.height + 10) s.y = -10;
-
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(190, 215, 225, ${s.alpha.toFixed(3)})`;
           ctx.fill();
         }
+
+        ctx.shadowBlur = 0;
+        for (let i = meteors.length - 1; i >= 0; i--) {
+          const m = meteors[i];
+          m.x += m.vx;
+          m.y += m.vy;
+          m.life -= m.decay;
+          if (m.life <= 0 || m.x > canvas.width + 50 || m.y > canvas.height + 50) {
+            meteors.splice(i, 1);
+            continue;
+          }
+          const tailX = m.x - m.vx * 8;
+          const tailY = m.y - m.vy * 8;
+          const grad = ctx.createLinearGradient(tailX, tailY, m.x, m.y);
+          grad.addColorStop(0, `rgba(140, 220, 200, 0)`);
+          grad.addColorStop(0.6, `rgba(140, 220, 200, ${(m.life * 0.5).toFixed(3)})`);
+          grad.addColorStop(1, `rgba(180, 240, 220, ${(m.life * 0.9).toFixed(3)})`);
+          ctx.beginPath();
+          ctx.moveTo(tailX, tailY);
+          ctx.lineTo(m.x, m.y);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = m.r;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(m.x, m.y, m.r * 1.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(200, 250, 235, ${(m.life * 0.8).toFixed(3)})`;
+          ctx.fill();
+        }
+
         requestAnimationFrame(draw);
       }
       draw();
@@ -765,18 +844,21 @@
       const msgInput    = document.getElementById('messageInput');
       const sendBtn     = document.getElementById('sendBtn');
 
-      // ----- 敏感词过滤 -----
+      // ----- 敏感词过滤（智能模糊匹配）-----
       const SENSITIVE_WORDS = [
-        '脏话示例1', '侮辱性词汇', '人身攻击',
-        '恶意刷屏词', '广告引流词'
+        '操', '吃屎', '大便', '傻逼', '妈的', '滚蛋',
+        'fuck', 'shit', 'damn'
       ];
 
       function filterContent(text) {
         let filtered = text;
         for (const word of SENSITIVE_WORDS) {
           if (word.trim() === '') continue;
-          const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const regex = new RegExp(escaped, 'gi');
+          const chars = word.split('');
+          const fuzzy = chars
+            .map(c => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('[\\s.,;:!?\'"()（）\\[\\]{}|<>@#$%^&*+=_\\-~`\\\\/]*');
+          const regex = new RegExp(fuzzy, 'gi');
           filtered = filtered.replace(regex, '***');
         }
         return filtered;
@@ -809,6 +891,18 @@
         msgInput.selectionStart = msgInput.selectionEnd = start + emoji.length;
         msgInput.focus();
       });
+
+      // ----- 递咖啡按钮（全场流星雨）-----
+      const coffeeBtn = document.getElementById('coffeeBtn');
+      coffeeBtn.addEventListener('click', () => {
+        socket.emit('global-coffee');
+      });
+
+      // ----- 消息 ID 计数器 -----
+      let msgIdCounter = 0;
+      function genMsgId() {
+        return 'msg-' + Date.now() + '-' + (++msgIdCounter) + '-' + Math.random().toString(36).slice(2, 6);
+      }
 
       // ----- 花名池（用于随机昵称按钮）-----
       const FLOWER_NAMES = [
@@ -891,33 +985,69 @@
       });
 
       // ----- 渲染消息到界面 -----
-      function appendMessage(msg) {
+      function appendMessage(msg, prepend) {
         const wrapper = document.createElement('div');
         wrapper.className = 'msg-wrapper' + (msg.type === 'system' ? ' system' : '');
 
-        // 自己发的消息加 is-me 样式
         const isMe = msg.type === 'chat' && msg.nickname === myNickname;
         if (isMe) {
           wrapper.classList.add('is-me');
         }
 
+        const msgId = msg.id || genMsgId();
+        wrapper.setAttribute('data-msg-id', msgId);
+
         if (msg.type === 'system') {
           wrapper.innerHTML = `<div class="msg-bubble">${escapeHtml(msg.content)}</div>`;
         } else {
-          // 自己的消息显示"你"，别人的消息显示对方昵称
           const displayName = isMe ? '你' : escapeHtml(msg.nickname);
+          const likes = msg.likes || 0;
+          const hugs  = msg.hugs  || 0;
           wrapper.innerHTML = `
             <div class="msg-meta">
               <span class="msg-nickname">${displayName}</span>
               <span class="msg-time">${escapeHtml(msg.time)}</span>
             </div>
             <div class="msg-bubble">${escapeHtml(msg.content)}</div>
-          `;
+            <div class="msg-actions">
+              <button class="action-btn btn-like" data-id="${msgId}" data-type="like">👍 <span class="count">${likes}</span></button>
+              <button class="action-btn btn-hug" data-id="${msgId}" data-type="hug">🫂 <span class="count">${hugs}</span></button>
+            </div>`;
         }
 
-        msgArea.appendChild(wrapper);
+        if (prepend) {
+          msgArea.insertBefore(wrapper, msgArea.firstChild);
+        } else {
+          msgArea.appendChild(wrapper);
+        }
         msgArea.scrollTop = msgArea.scrollHeight;
       }
+
+      // 消息互动：点赞 / 抱一抱
+      msgArea.addEventListener('click', (e) => {
+        const btn = e.target.closest('.action-btn');
+        if (!btn) return;
+        const msgId = btn.getAttribute('data-id');
+        const type  = btn.getAttribute('data-type');
+        socket.emit('msg-action', { msgId, type });
+      });
+
+      // 收到互动更新
+      socket.on('msg-action-update', (data) => {
+        const wrapper = msgArea.querySelector(`[data-msg-id="${data.msgId}"]`);
+        if (!wrapper) return;
+        const btn = wrapper.querySelector(`[data-type="${data.type}"] .count`);
+        if (btn) btn.textContent = data.count;
+      });
+
+      // 收到全场递咖啡 → 流星 + 系统消息
+      socket.on('global-coffee', () => {
+        if (window.spawnMeteor) window.spawnMeteor();
+        appendMessage({
+          type: 'system',
+          content: '有人默默为全场递出了一杯热咖啡，划过了一颗流星 🌙'
+        });
+      });
 
       // ----- 发送逻辑 -----
       function sendMessage() {
