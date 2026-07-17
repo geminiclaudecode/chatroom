@@ -5,16 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>口袋树洞</title>
   <style>
-    /* ========== 全局重置 ========== */
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: transparent;
+      background: transparent !important;
       color: #e5e7eb;
       height: 100vh;
       display: flex;
@@ -24,651 +19,222 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* ================================================================
-       星空粒子背景 Canvas
-       ================================================================ */
     #starfield {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
       z-index: 0;
       background: #06040a;
       pointer-events: none;
     }
 
-    /* ================================================================
-       昵称输入覆盖层 — 深色毛玻璃遮罩
-       ================================================================ */
     .nickname-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
       background: rgba(6, 4, 10, 0.25) !important;
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+      transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1), transform 0.6s cubic-bezier(0.4,0,0.2,1) !important;
     }
-
-    .nickname-overlay.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .nickname-overlay.fade-out {
-      opacity: 0 !important;
-      transform: translateY(30px) !important;
-      pointer-events: none;
-    }
+    .nickname-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .nickname-overlay.fade-out { opacity: 0 !important; transform: translateY(30px) !important; pointer-events: none; }
 
     .nickname-card {
-      width: 92%;
-      max-width: 400px;
-      padding: 48px 40px 40px;
-      background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.03) 0%,
-        rgba(255, 255, 255, 0.01) 100%
-      );
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      text-align: center;
-      box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.5),
-        inset 0 1px 1px rgba(255, 255, 255, 0.15),
-        inset 0 -10px 20px rgba(255, 255, 255, 0.01),
-        inset 0 0 20px 10px rgba(255, 255, 255, 0.02);
-      overflow: hidden;
-      animation: cardAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 92%; max-width: 400px; padding: 48px 40px 40px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+      backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;
+      text-align: center; overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -10px 20px rgba(255,255,255,0.01), inset 0 0 20px 10px rgba(255,255,255,0.02);
+      animation: cardAppear 0.8s cubic-bezier(0.16,1,0.3,1);
     }
+    @keyframes cardAppear { from { opacity: 0; transform: translateY(28px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-    @keyframes cardAppear {
-      from { opacity: 0; transform: translateY(28px) scale(0.95); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* ---- 墨玉水滴 — 深夜极光绿 → 幽暗灰蓝低饱和流体 ---- */
     .logo-sphere {
-      width: 72px;
-      height: 72px;
-      margin: 0 auto 20px;
+      width: 72px; height: 72px; margin: 0 auto 20px;
       border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%;
-      background: linear-gradient(135deg,
-        rgba(5, 150, 105, 0.35) 0%,
-        rgba(2, 132, 199, 0.3) 50%,
-        rgba(29, 78, 216, 0.25) 100%);
+      background: linear-gradient(135deg, rgba(5,150,105,0.35) 0%, rgba(2,132,199,0.3) 50%, rgba(29,78,216,0.25) 100%);
       background-size: 200% 200%;
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow:
-        0 0 25px rgba(5, 150, 105, 0.25),
-        inset 0 2px 3px rgba(255, 255, 255, 0.3),
-        inset 0 -8px 15px rgba(5, 150, 105, 0.25),
-        inset 0 8px 15px rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 0 25px rgba(5,150,105,0.25), inset 0 2px 3px rgba(255,255,255,0.3), inset 0 -8px 15px rgba(5,150,105,0.25), inset 0 8px 15px rgba(255,255,255,0.05);
       animation: liquidJelly 8s ease-in-out infinite, fluidColor 12s ease-in-out infinite;
     }
-
     @keyframes liquidJelly {
-      0%, 100% {
-        border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%;
-        transform: rotate(0deg) scale(1);
-      }
-      25% {
-        border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%;
-        transform: rotate(1deg) scale(1.02);
-      }
-      50% {
-        border-radius: 55% 45% 45% 55% / 40% 60% 45% 55%;
-        transform: rotate(0deg) scale(0.98);
-      }
-      75% {
-        border-radius: 50% 50% 60% 40% / 50% 50% 40% 60%;
-        transform: rotate(-1deg) scale(1.01);
-      }
+      0%,100%{border-radius:60% 40% 55% 45%/45% 55% 40% 60%;transform:rotate(0)scale(1)}
+      25%{border-radius:45% 55% 50% 50%/55% 45% 55% 45%;transform:rotate(1deg)scale(1.02)}
+      50%{border-radius:55% 45% 45% 55%/40% 60% 45% 55%;transform:rotate(0)scale(.98)}
+      75%{border-radius:50% 50% 60% 40%/50% 50% 40% 60%;transform:rotate(-1deg)scale(1.01)}
     }
+    @keyframes fluidColor { 0%{background-position:0 50%} 50%{background-position:100% 50%} 100%{background-position:0 50%} }
 
-    @keyframes fluidColor {
-      0%   { background-position: 0% 50%; }
-      50%  { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .nickname-card h1 {
-      font-size: 28px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.85);
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
-    }
-
-    .nickname-card .subtitle {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.45);
-      margin-bottom: 32px;
-      line-height: 1.6;
-    }
-
-    .nickname-card .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
+    .nickname-card h1 { font-size:28px; font-weight:700; color:rgba(255,255,255,0.85); letter-spacing:-0.02em; margin-bottom:8px; }
+    .nickname-card .subtitle { font-size:14px; color:rgba(255,255,255,0.45); margin-bottom:32px; line-height:1.6; }
+    .nickname-card .input-group { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
     .nickname-card input {
-      width: 100%;
-      padding: 14px 18px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 16px;
-      text-align: center;
-      outline: none;
-      letter-spacing: -0.01em;
-      transition: all 0.3s ease;
+      width:100%; padding:14px 18px; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.08);
+      border-radius:14px; color:rgba(255,255,255,0.85); font-size:16px; text-align:center;
+      outline:none; letter-spacing:-0.01em; transition:all 0.3s ease;
     }
-
-    .nickname-card input::placeholder {
-      color: rgba(255, 255, 255, 0.3);
-      font-size: 14px;
-    }
-
-    .nickname-card input:focus {
-      background: rgba(0, 0, 0, 0.4);
-      border-color: rgba(15, 76, 58, 0.4);
-      box-shadow: 0 0 0 3px rgba(15, 76, 58, 0.1);
-    }
-
-    .nickname-card .btn-row {
-      display: flex;
-      gap: 10px;
-    }
-
+    .nickname-card input::placeholder { color:rgba(255,255,255,0.3); font-size:14px; }
+    .nickname-card input:focus { background:rgba(0,0,0,0.4); border-color:rgba(15,76,58,0.4); box-shadow:0 0 0 3px rgba(15,76,58,0.1); }
+    .nickname-card .btn-row { display:flex; gap:10px; }
     .nickname-card .btn {
-      flex: 1;
-      padding: 13px 20px;
-      border: none;
-      border-radius: 14px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      letter-spacing: -0.01em;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      flex:1; padding:13px 20px; border:none; border-radius:14px; font-size:15px; font-weight:600;
+      cursor:pointer; letter-spacing:-0.01em; transition:all 0.3s cubic-bezier(0.25,0.8,0.25,1);
     }
+    .nickname-card .btn-random { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.75); }
+    .nickname-card .btn-random:hover { background:rgba(255,255,255,0.12); transform:translateY(-1px); }
+    .nickname-card .btn-join { background:linear-gradient(135deg,#0f4c3a,#09372a); color:rgba(255,255,255,0.85); box-shadow:0 4px 15px rgba(15,76,58,0.2); }
+    .nickname-card .btn-join:hover { transform:translateY(-1px) scale(1.03); box-shadow:0 0 0 3px rgba(15,76,58,0.15),0 6px 20px rgba(15,76,58,0.25); filter:brightness(1.1); }
+    .nickname-card .btn:active { transform:scale(0.97); }
+    .nickname-card .hint { margin-top:20px; font-size:12px; color:rgba(255,255,255,0.25); line-height:1.5; }
 
-    .nickname-card .btn-random {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.75);
-    }
-
-    .nickname-card .btn-random:hover {
-      background: rgba(255, 255, 255, 0.12);
-      transform: translateY(-1px);
-    }
-
-    .nickname-card .btn-join {
-      background: linear-gradient(135deg, #0f4c3a, #09372a);
-      color: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 4px 15px rgba(15, 76, 58, 0.2);
-    }
-
-    .nickname-card .btn-join:hover {
-      transform: translateY(-1px) scale(1.03);
-      box-shadow:
-        0 0 0 3px rgba(15, 76, 58, 0.15),
-        0 6px 20px rgba(15, 76, 58, 0.25);
-      filter: brightness(1.1);
-    }
-
-    .nickname-card .btn:active {
-      transform: scale(0.97);
-    }
-
-    .nickname-card .hint {
-      margin-top: 20px;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.25);
-      line-height: 1.5;
-    }
-
-    /* ================================================================
-       聊天主界面 — Apple Liquid Glass 全屏面板
-       ================================================================ */
     .chat-app {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background: rgba(255, 255, 255, 0.02) !important;
-      backdrop-filter: blur(35px) !important;
-      -webkit-backdrop-filter: blur(35px) !important;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.5),
-        inset 0 1px 1px rgba(255, 255, 255, 0.15),
-        inset 0 -10px 20px rgba(255, 255, 255, 0.01),
-        inset 0 0 20px 10px rgba(255, 255, 255, 0.02);
-      overflow: hidden;
-      opacity: 0;
-      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+      position:relative; z-index:1; display:flex; flex-direction:column; height:100vh;
+      background: rgba(255,255,255,0.02) !important;
+      backdrop-filter: blur(35px) !important; -webkit-backdrop-filter: blur(35px) !important;
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:0 20px 50px rgba(0,0,0,0.5),inset 0 1px 1px rgba(255,255,255,0.15),inset 0 -10px 20px rgba(255,255,255,0.01),inset 0 0 20px 10px rgba(255,255,255,0.02);
+      overflow:hidden; opacity:0; transition:opacity 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s;
+    }
+    .chat-app.visible { opacity:1; }
+
+    .status-bar { display:flex; align-items:center; justify-content:space-between; padding:14px 24px; background:transparent; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+    .status-identity { display:flex; align-items:center; gap:8px; font-size:15px; color:rgba(255,255,255,0.7); font-weight:500; }
+    .status-identity .dot { width:8px; height:8px; border-radius:50%; background:#0f4c3a; box-shadow:0 0 6px rgba(15,76,58,0.3); }
+    .nickname-highlight { color:#6b9080; font-weight:700; }
+    .online-badge { font-size:13px; color:rgba(255,255,255,0.4); }
+
+    .messages-area { flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:10px; scroll-behavior:smooth; background:transparent; }
+    .messages-area::-webkit-scrollbar { width:4px; }
+    .messages-area::-webkit-scrollbar-track { background:transparent; }
+    .messages-area::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:10px; }
+    .messages-area::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.16); }
+
+    .msg-wrapper { display:flex; flex-direction:column; animation:fadeSlideIn 0.4s cubic-bezier(0.16,1,0.3,1); position:relative; }
+    @keyframes fadeSlideIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    .msg-meta { font-size:12px; color:rgba(255,255,255,0.35); margin-bottom:4px; padding-left:10px; }
+    .msg-meta .msg-nickname { color:rgba(255,255,255,0.5); font-weight:600; }
+    .msg-meta .msg-time { margin-left:6px; color:rgba(255,255,255,0.25); }
+    .msg-bubble { display:inline-block; max-width:72%; padding:13px 18px; border-radius:20px; font-size:16px; line-height:1.5; word-break:break-word; letter-spacing:-0.01em; position:relative; }
+    .msg-wrapper:not(.is-me):not(.system) .msg-bubble { border-radius:4px 20px 20px 20px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); color:#e5e7eb; }
+    .msg-wrapper.is-me { align-items:flex-end; }
+    .msg-wrapper.is-me .msg-meta { padding-left:0; padding-right:10px; text-align:right; }
+    .msg-wrapper.is-me .msg-meta .msg-nickname { color:rgba(107,144,128,0.6); }
+    .msg-wrapper.is-me .msg-bubble { border-radius:20px 20px 4px 20px; background:rgba(15,76,58,0.12); border:1px solid rgba(15,76,58,0.2); color:rgba(255,255,255,0.85); box-shadow:0 2px 10px rgba(15,76,58,0.06); }
+    .msg-wrapper.system { align-items:center; text-align:center; }
+    .msg-wrapper.system .msg-bubble { background:rgba(255,255,255,0.04); border-radius:12px; color:rgba(255,255,255,0.3); font-size:12px; padding:6px 16px; }
+    .msg-wrapper.system .msg-meta { display:none; }
+
+    /* 消息互动角标 */
+    .badge-count {
+      position:absolute; top:-6px; right:-6px;
+      min-width:18px; height:18px; padding:0 5px;
+      border-radius:9px; background:rgba(16,185,129,0.25);
+      color:rgba(255,255,255,0.7); font-size:10px; font-weight:700;
+      display:none; align-items:center; justify-content:center;
+      pointer-events:none; z-index:3;
+    }
+    .badge-count.show { display:flex; }
+
+    /* 右键/长按弹出菜单 */
+    .action-popup-menu {
+      position:fixed; z-index:200;
+      display:flex; gap:4px; padding:6px 8px;
+      background:rgba(20,20,40,0.92);
+      backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,0.1); border-radius:14px;
+      box-shadow:0 12px 40px rgba(0,0,0,0.6);
+      opacity:0; transform:scale(0.9); pointer-events:none;
+      transition:opacity 0.2s ease,transform 0.2s ease;
+    }
+    .action-popup-menu.show {
+      opacity:1; transform:scale(1); pointer-events:auto;
+    }
+    .action-popup-menu button {
+      display:flex; align-items:center; gap:4px;
+      padding:6px 12px; border:none; border-radius:10px;
+      background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.7);
+      font-size:13px; cursor:pointer; white-space:nowrap;
+      transition:all 0.2s ease;
+    }
+    .action-popup-menu button:hover {
+      background:rgba(16,185,129,0.15); color:#fff;
     }
 
-    .chat-app.visible {
-      opacity: 1;
-    }
-
-    /* ---------- 顶部状态栏 ---------- */
-    .status-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 24px;
-      background: transparent;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      flex-shrink: 0;
-    }
-
-    .status-identity {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 15px;
-      color: rgba(255, 255, 255, 0.7);
-      font-weight: 500;
-    }
-
-    .status-identity .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #0f4c3a;
-      box-shadow: 0 0 6px rgba(15, 76, 58, 0.3);
-    }
-
-    .nickname-highlight {
-      color: #6b9080;
-      font-weight: 700;
-    }
-
-    .online-badge {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    /* ---------- 消息滚动区 — 完全透明 ---------- */
-    .messages-area {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      scroll-behavior: smooth;
-      background: transparent;
-    }
-
-    .messages-area::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .messages-area::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .messages-area::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-    }
-
-    .messages-area::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.16);
-    }
-
-    /* 消息气泡 — 通用（更圆润饱满） */
-    .msg-wrapper {
-      display: flex;
-      flex-direction: column;
-      animation: fadeSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes fadeSlideIn {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .msg-meta {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.35);
-      margin-bottom: 4px;
-      padding-left: 10px;
-    }
-
-    .msg-meta .msg-nickname {
-      color: rgba(255, 255, 255, 0.5);
-      font-weight: 600;
-    }
-
-    .msg-meta .msg-time {
-      margin-left: 6px;
-      color: rgba(255, 255, 255, 0.25);
-    }
-
-    .msg-bubble {
-      display: inline-block;
-      max-width: 72%;
-      padding: 13px 18px;
-      border-radius: 20px;
-      font-size: 16px;
-      line-height: 1.5;
-      word-break: break-word;
-      letter-spacing: -0.01em;
-    }
-
-    /* 他人消息气泡 — 淡白磨砂液态 */
-    .msg-wrapper:not(.is-me):not(.system) .msg-bubble {
-      border-radius: 4px 20px 20px 20px;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #e5e7eb;
-    }
-
-    /* 自己发送的消息 — 深蓝果冻偏光 */
-    .msg-wrapper.is-me {
-      align-items: flex-end;
-    }
-
-    .msg-wrapper.is-me .msg-meta {
-      padding-left: 0;
-      padding-right: 10px;
-      text-align: right;
-    }
-
-    .msg-wrapper.is-me .msg-meta .msg-nickname {
-      color: rgba(107, 144, 128, 0.6);
-    }
-
-    .msg-wrapper.is-me .msg-bubble {
-      border-radius: 20px 20px 4px 20px;
-      background: rgba(15, 76, 58, 0.12);
-      border: 1px solid rgba(15, 76, 58, 0.2);
-      color: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 2px 10px rgba(15, 76, 58, 0.06);
-    }
-
-    /* 系统消息居中 */
-    .msg-wrapper.system {
-      align-items: center;
-      text-align: center;
-    }
-
-    .msg-wrapper.system .msg-bubble {
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 12px;
-      color: rgba(255, 255, 255, 0.3);
-      font-size: 12px;
-      padding: 6px 16px;
-    }
-
-    .msg-wrapper.system .msg-meta {
-      display: none;
-    }
-
-    /* ---------- 底部输入区 — 透明悬浮，消灭外框 ---------- */
-    .input-area {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 24px;
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-      outline: none !important;
-      flex-shrink: 0;
-    }
-
-    /* 输入框 — 液态玻璃 */
+    .input-area { display:flex; align-items:center; gap:12px; padding:12px 24px; background:transparent !important; border:none !important; box-shadow:none !important; outline:none !important; flex-shrink:0; }
     .input-area input {
-      flex: 1;
-      padding: 12px 18px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 24px;
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 16px;
-      outline: none !important;
-      letter-spacing: -0.01em;
-      box-shadow:
-        inset 0 1px 1px rgba(255, 255, 255, 0.1),
-        inset 0 0 10px rgba(255, 255, 255, 0.02);
-      transition: border-color 0.4s ease, box-shadow 0.4s ease !important;
+      flex:1; padding:12px 18px;
+      background:linear-gradient(180deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%);
+      backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,0.08); border-radius:24px;
+      color:rgba(255,255,255,0.85); font-size:16px; outline:none !important; letter-spacing:-0.01em;
+      box-shadow:inset 0 1px 1px rgba(255,255,255,0.1),inset 0 0 10px rgba(255,255,255,0.02);
+      transition:border-color 0.4s ease,box-shadow 0.4s ease !important;
     }
-
-    .input-area input::placeholder {
-      color: rgba(255, 255, 255, 0.3);
-    }
-
+    .input-area input::placeholder { color:rgba(255,255,255,0.3); }
     .input-area input:focus {
-      outline: none !important;
-      border-color: rgba(16, 185, 129, 0.4) !important;
-      box-shadow:
-        0 0 15px rgba(16, 185, 129, 0.15),
-        inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+      outline:none !important;
+      border-color:rgba(16,185,129,0.4) !important;
+      box-shadow:0 0 15px rgba(16,185,129,0.15),inset 0 1px 1px rgba(255,255,255,0.1) !important;
     }
-
-    /* 发送按钮 — 半透明翡翠玻璃 */
     .input-area button {
-      position: relative;
-      padding: 11px 22px;
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(9, 55, 42, 0.3) 100%) !important;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(16, 185, 129, 0.3) !important;
-      border-radius: 24px !important;
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      letter-spacing: -0.01em;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-      flex-shrink: 0;
-      box-shadow:
-        0 4px 15px rgba(16, 185, 129, 0.15),
-        inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+      position:relative; padding:11px 22px;
+      background:linear-gradient(135deg,rgba(16,185,129,0.25) 0%,rgba(9,55,42,0.3) 100%) !important;
+      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+      border:1px solid rgba(16,185,129,0.3) !important; border-radius:24px !important;
+      color:rgba(255,255,255,0.85); font-size:15px; font-weight:600; cursor:pointer;
+      letter-spacing:-0.01em; transition:all 0.3s cubic-bezier(0.25,0.8,0.25,1) !important; flex-shrink:0;
+      box-shadow:0 4px 15px rgba(16,185,129,0.15),inset 0 1px 1px rgba(255,255,255,0.2) !important;
     }
-
     .input-area button:hover {
-      transform: translateY(-1px) scale(1.03);
-      box-shadow:
-        0 6px 20px rgba(16, 185, 129, 0.35),
-        inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
-      filter: brightness(1.15);
+      transform:translateY(-1px) scale(1.03);
+      box-shadow:0 6px 20px rgba(16,185,129,0.35),inset 0 1px 1px rgba(255,255,255,0.3) !important; filter:brightness(1.15);
+    }
+    .input-area button:active { transform:scale(0.96); box-shadow:0 2px 8px rgba(16,185,129,0.2),inset 0 1px 1px rgba(255,255,255,0.15) !important; }
+
+    .chat-app::before,.nickname-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent); z-index:2; pointer-events:none;
+    }
+    .chat-app::after,.nickname-card::after {
+      content:''; position:absolute; top:0; left:0; width:1px; height:100%;
+      background:linear-gradient(180deg,rgba(255,255,255,0.4),transparent,rgba(255,255,255,0.15)); z-index:2; pointer-events:none;
     }
 
-    .input-area button:active {
-      transform: scale(0.96);
-      box-shadow:
-        0 2px 8px rgba(16, 185, 129, 0.2),
-        inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
-    }
-
-    /* ================================================================
-       玻璃边缘高光切面（伪元素绘制）
-       ================================================================ */
-    .chat-app::before,
-    .nickname-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    .chat-app::after,
-    .nickname-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; width: 1px; height: 100%;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent, rgba(255, 255, 255, 0.15));
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    /* ================================================================
-       消息互动按钮
-       ================================================================ */
-    .msg-actions {
-      display: flex;
-      gap: 6px;
-      margin-top: 3px;
-      padding-left: 10px;
-    }
-    .msg-wrapper.is-me .msg-actions {
-      padding-left: 0;
-      padding-right: 10px;
-      justify-content: flex-end;
-    }
-    .action-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      padding: 2px 8px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.03);
-      color: rgba(255, 255, 255, 0.35);
-      font-size: 11px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      user-select: none;
-    }
-    .action-btn:hover {
-      background: rgba(16, 185, 129, 0.1);
-      border-color: rgba(16, 185, 129, 0.2);
-      color: rgba(255, 255, 255, 0.7);
-    }
-    .action-btn .count {
-      font-weight: 600;
-    }
-
-    /* ================================================================
-       Emoji 表情面板
-       ================================================================ */
     .emoji-trigger-btn {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: rgba(255, 255, 255, 0.55);
-      font-size: 17px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      transition: all 0.3s ease;
-      user-select: none;
+      width:40px; height:40px; border-radius:50%;
+      background:linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));
+      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.55); font-size:17px;
+      cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+      transition:all 0.3s ease; user-select:none;
     }
-    .emoji-trigger-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.15);
-      color: rgba(255, 255, 255, 0.85);
-    }
+    .emoji-trigger-btn:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.15); color:rgba(255,255,255,0.85); }
+    .emoji-panel { position:absolute; bottom:72px; left:24px; display:none; flex-wrap:wrap; gap:4px; padding:10px 12px; background:rgba(20,20,35,0.88); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.1); border-radius:16px; z-index:10; box-shadow:0 12px 40px rgba(0,0,0,0.5); }
+    .emoji-panel.show { display:flex; }
+    .emoji-panel .emoji-item { width:36px; height:36px; border:none; border-radius:8px; background:transparent; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; user-select:none; }
+    .emoji-panel .emoji-item:hover { background:rgba(255,255,255,0.1); }
 
-    .emoji-panel {
-      position: absolute;
-      bottom: 72px; left: 24px;
-      display: none;
-      flex-wrap: wrap;
-      gap: 4px;
-      padding: 10px 12px;
-      background: rgba(20, 20, 35, 0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      z-index: 10;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-    }
-    .emoji-panel.show {
-      display: flex;
-    }
-    .emoji-panel .emoji-item {
-      width: 36px; height: 36px;
-      border: none;
-      border-radius: 8px;
-      background: transparent;
-      font-size: 20px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s;
-      user-select: none;
-    }
-    .emoji-panel .emoji-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    /* ================================================================
-       移动端微调（保留全屏宽度）
-       ================================================================ */
-    @media (max-width: 480px) {
-      .nickname-card {
-        width: 94%;
-        padding: 40px 24px 32px;
-      }
-
-      .msg-bubble {
-        max-width: 82%;
-      }
-
-      .status-bar {
-        padding: 12px 16px;
-      }
-
-      .input-area {
-        padding: 10px 16px;
-      }
-
-      .messages-area {
-        padding: 16px;
-      }
+    @media (max-width:480px) {
+      .nickname-card { width:94%; padding:40px 24px 32px; }
+      .msg-bubble { max-width:82%; }
+      .status-bar { padding:12px 16px; }
+      .input-area { padding:10px 16px; }
+      .messages-area { padding:16px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- 星空粒子背景 -->
   <canvas id="starfield"></canvas>
 
-  <!-- ================================================================
-  昵称输入覆盖层
-  ================================================================ -->
   <div class="nickname-overlay" id="nicknameOverlay">
     <div class="nickname-card">
       <div class="logo-sphere"></div>
       <h1>口袋树洞</h1>
       <p class="subtitle">输入昵称，和来自世界各地的朋友<br>一起聊天</p>
       <div class="input-group">
-        <input
-          type="text"
-          id="nicknameInput"
-          placeholder="你的昵称（留空则随机分配）"
-          maxlength="20"
-          autocomplete="off"
-        />
+        <input type="text" id="nicknameInput" placeholder="你的昵称（留空则随机分配）" maxlength="20" autocomplete="off" />
       </div>
       <div class="btn-row">
         <button class="btn btn-random" id="randomBtn">随机昵称</button>
@@ -678,409 +244,185 @@
     </div>
   </div>
 
-  <!-- ================================================================
-  聊天主界面
-  ================================================================ -->
   <div class="chat-app" id="chatApp">
-    <!-- 顶部状态栏 -->
     <div class="status-bar">
       <div class="status-identity">
         <span class="dot"></span>
         <span>你好，<strong class="nickname-highlight" id="myName">...</strong></span>
       </div>
-      <div class="online-badge">
-        在线 <span class="num" id="onlineCount">0</span> 人
-      </div>
+      <div class="online-badge">在线 <span class="num" id="onlineCount">0</span> 人</div>
     </div>
-
-    <!-- 消息滚动区 -->
     <div class="messages-area" id="messagesArea"></div>
-
-    <!-- 底部输入区 -->
     <div class="input-area">
       <button class="emoji-trigger-btn" id="coffeeBtn" title="递咖啡">☕</button>
       <button class="emoji-trigger-btn" id="emojiBtn" title="表情">😊</button>
-      <input
-        type="text"
-        id="messageInput"
-        placeholder="说点什么…"
-        maxlength="500"
-      />
+      <input type="text" id="messageInput" placeholder="说点什么…" maxlength="500" />
       <button id="sendBtn">发送</button>
     </div>
-    <!-- Emoji 面板 -->
     <div class="emoji-panel" id="emojiPanel">
-      <button class="emoji-item">🌲</button>
-      <button class="emoji-item">🌊</button>
-      <button class="emoji-item">🪐</button>
-      <button class="emoji-item">🌙</button>
-      <button class="emoji-item">☕</button>
-      <button class="emoji-item">🤍</button>
-      <button class="emoji-item">🫂</button>
-      <button class="emoji-item">🍃</button>
-      <button class="emoji-item">💫</button>
-      <button class="emoji-item">🌿</button>
-      <button class="emoji-item">🕯️</button>
-      <button class="emoji-item">✨</button>
+      <button class="emoji-item">🌲</button><button class="emoji-item">🌊</button><button class="emoji-item">🪐</button>
+      <button class="emoji-item">🌙</button><button class="emoji-item">☕</button><button class="emoji-item">🤍</button>
+      <button class="emoji-item">🫂</button><button class="emoji-item">🍃</button><button class="emoji-item">💫</button>
+      <button class="emoji-item">🌿</button><button class="emoji-item">🕯️</button><button class="emoji-item">✨</button>
     </div>
   </div>
 
-  <!-- ================================================================
-  星空粒子 Canvas 动画
-  ================================================================ -->
+  <!-- 右键/长按弹出菜单 -->
+  <div class="action-popup-menu" id="actionMenu">
+    <button data-type="like">👍 赞一个</button>
+    <button data-type="hug">🫂 抱抱他</button>
+  </div>
+
+  <!-- Canvas 星空 -->
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const canvas = document.getElementById('starfield');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      let stars = [];
-      const COUNT = 80;
-      const meteors = [];
-
-      function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      resize();
-      window.addEventListener('resize', resize);
-
-      function initStars() {
-        stars = [];
-        for (let i = 0; i < COUNT; i++) {
-          stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            r: 0.6 + Math.random() * 1.2,
-            vx: (Math.random() - 0.5) * 0.05,
-            vy: -(Math.random() * 0.2 + 0.05),
-            alpha: Math.random(),
-            alphaSpeed: 0.004 + Math.random() * 0.006,
-            alphaDir: Math.random() > 0.5 ? 1 : -1
-          });
-        }
-      }
-      initStars();
-      window.addEventListener('resize', initStars);
-
-      window.spawnMeteor = function () {
-        meteors.push({
-          x: Math.random() * canvas.width * 0.8,
-          y: -20,
-          vx: 4 + Math.random() * 6,
-          vy: 1.5 + Math.random() * 3,
-          life: 1.0,
-          decay: 0.012 + Math.random() * 0.008,
-          r: 1.2 + Math.random() * 1.0
-        });
-      };
-
-      function draw() {
-        ctx.fillStyle = '#06040a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        for (const s of stars) {
-          s.x += s.vx;
-          s.y += s.vy;
-          s.alpha += s.alphaSpeed * s.alphaDir;
-          if (s.alpha >= 0.8) { s.alphaDir = -1; }
-          if (s.alpha <= 0.1) { s.alphaDir = 1; }
-          if (s.x < -10) s.x = canvas.width + 10;
-          if (s.x > canvas.width + 10) s.x = -10;
-          if (s.y < -10) s.y = canvas.height + 10;
-          if (s.y > canvas.height + 10) s.y = -10;
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-          ctx.shadowBlur = 4;
-          ctx.shadowColor = 'rgba(16, 185, 129, 0.3)';
-          ctx.fillStyle = `rgba(240, 245, 255, ${s.alpha.toFixed(3)})`;
-          ctx.fill();
-        }
-        ctx.shadowBlur = 0;
-
-        for (let i = meteors.length - 1; i >= 0; i--) {
-          const m = meteors[i];
-          m.x += m.vx;
-          m.y += m.vy;
-          m.life -= m.decay;
-          if (m.life <= 0 || m.x > canvas.width + 50 || m.y > canvas.height + 50) {
-            meteors.splice(i, 1);
-            continue;
-          }
-          const tailX = m.x - m.vx * 8;
-          const tailY = m.y - m.vy * 8;
-          const grad = ctx.createLinearGradient(tailX, tailY, m.x, m.y);
-          grad.addColorStop(0, `rgba(140, 220, 200, 0)`);
-          grad.addColorStop(0.6, `rgba(140, 220, 200, ${(m.life * 0.5).toFixed(3)})`);
-          grad.addColorStop(1, `rgba(180, 240, 220, ${(m.life * 0.9).toFixed(3)})`);
-          ctx.beginPath();
-          ctx.moveTo(tailX, tailY);
-          ctx.lineTo(m.x, m.y);
-          ctx.strokeStyle = grad;
-          ctx.lineWidth = m.r;
-          ctx.lineCap = 'round';
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.arc(m.x, m.y, m.r * 1.5, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(200, 250, 235, ${(m.life * 0.8).toFixed(3)})`;
-          ctx.fill();
-        }
-
+    document.addEventListener("DOMContentLoaded",function(){
+      const canvas=document.getElementById('starfield');
+      if(!canvas)return;
+      const ctx=canvas.getContext('2d');
+      let stars=[],meteors=[];
+      const COUNT=80;
+      function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+      resize();window.addEventListener('resize',resize);
+      function initStars(){stars=[];for(let i=0;i<COUNT;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:0.6+Math.random()*1.2,vx:(Math.random()-0.5)*0.05,vy:-(Math.random()*0.2+0.05),alpha:Math.random(),alphaSpeed:0.004+Math.random()*0.006,alphaDir:Math.random()>0.5?1:-1});}
+      initStars();window.addEventListener('resize',initStars);
+      window.spawnMeteor=function(){meteors.push({x:Math.random()*canvas.width*0.8,y:-20,vx:4+Math.random()*6,vy:1.5+Math.random()*3,life:1,decay:0.012+Math.random()*0.008,r:1.2+Math.random()*1});};
+      function draw(){
+        ctx.fillStyle='#06040a';ctx.fillRect(0,0,canvas.width,canvas.height);
+        for(const s of stars){s.x+=s.vx;s.y+=s.vy;s.alpha+=s.alphaSpeed*s.alphaDir;if(s.alpha>=0.8)s.alphaDir=-1;if(s.alpha<=0.1)s.alphaDir=1;if(s.x<-10)s.x=canvas.width+10;if(s.x>canvas.width+10)s.x=-10;if(s.y<-10)s.y=canvas.height+10;if(s.y>canvas.height+10)s.y=-10;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.shadowBlur=4;ctx.shadowColor='rgba(16,185,129,0.3)';ctx.fillStyle=`rgba(240,245,255,${s.alpha.toFixed(3)})`;ctx.fill();}
+        ctx.shadowBlur=0;
+        for(let i=meteors.length-1;i>=0;i--){const m=meteors[i];m.x+=m.vx;m.y+=m.vy;m.life-=m.decay;if(m.life<=0||m.x>canvas.width+50||m.y>canvas.height+50){meteors.splice(i,1);continue;}const tx=m.x-m.vx*8,ty=m.y-m.vy*8;const g=ctx.createLinearGradient(tx,ty,m.x,m.y);g.addColorStop(0,'rgba(140,220,200,0)');g.addColorStop(0.6,`rgba(140,220,200,${(m.life*0.5).toFixed(3)})`);g.addColorStop(1,`rgba(180,240,220,${(m.life*0.9).toFixed(3)})`);ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(m.x,m.y);ctx.strokeStyle=g;ctx.lineWidth=m.r;ctx.lineCap='round';ctx.stroke();ctx.beginPath();ctx.arc(m.x,m.y,m.r*1.5,0,Math.PI*2);ctx.fillStyle=`rgba(200,250,235,${(m.life*0.8).toFixed(3)})`;ctx.fill();}
         requestAnimationFrame(draw);
       }
       draw();
     });
   </script>
 
-  <!-- Socket.io CDN -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
-    (function () {
-      // ----- DOM 引用 -----
-      const nicknameOverlay = document.getElementById('nicknameOverlay');
-      const nicknameInput   = document.getElementById('nicknameInput');
-      const randomBtn       = document.getElementById('randomBtn');
-      const joinBtn         = document.getElementById('joinBtn');
+    (function(){
+      const nicknameOverlay=document.getElementById('nicknameOverlay'),nicknameInput=document.getElementById('nicknameInput'),randomBtn=document.getElementById('randomBtn'),joinBtn=document.getElementById('joinBtn');
+      const chatApp=document.getElementById('chatApp'),myNameEl=document.getElementById('myName'),onlineEl=document.getElementById('onlineCount'),msgArea=document.getElementById('messagesArea'),msgInput=document.getElementById('messageInput'),sendBtn=document.getElementById('sendBtn');
+      const actionMenu=document.getElementById('actionMenu');
 
-      const chatApp     = document.getElementById('chatApp');
-      const myNameEl    = document.getElementById('myName');
-      const onlineEl    = document.getElementById('onlineCount');
-      const msgArea     = document.getElementById('messagesArea');
-      const msgInput    = document.getElementById('messageInput');
-      const sendBtn     = document.getElementById('sendBtn');
+      let currentMenuMsgId=null;
+      let menuHideTimer=null;
 
-      // ----- 敏感词过滤（智能模糊匹配）-----
-      const SENSITIVE_WORDS = [
-        '操', '吃屎', '大便', '傻逼', '妈的', '滚蛋',
-        'fuck', 'shit', 'damn'
-      ];
-
-      function filterContent(text) {
-        let filtered = text;
-        for (const word of SENSITIVE_WORDS) {
-          if (word.trim() === '') continue;
-          const chars = word.split('');
-          const fuzzy = chars
-            .map(c => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-            .join('[\\s.,;:!?\'"()（）\\[\\]{}|<>@#$%^&*+=_\\-~`\\\\/]*');
-          const regex = new RegExp(fuzzy, 'gi');
-          filtered = filtered.replace(regex, '***');
-        }
-        return filtered;
+      function hideMenu(){actionMenu.classList.remove('show');currentMenuMsgId=null;if(menuHideTimer)clearTimeout(menuHideTimer);}
+      function showMenu(x,y,msgId){
+        hideMenu();
+        currentMenuMsgId=msgId;
+        const mw=actionMenu.offsetWidth||120,mh=actionMenu.offsetHeight||40;
+        let px=x,py=y-mh-8;
+        if(px+mw>window.innerWidth-10)px=window.innerWidth-mw-10;
+        if(px<10)px=10;
+        if(py<10)py=y+20;
+        actionMenu.style.left=px+'px';actionMenu.style.top=py+'px';
+        requestAnimationFrame(()=>actionMenu.classList.add('show'));
       }
 
-      // ----- Emoji 面板逻辑 -----
-      const emojiBtn   = document.getElementById('emojiBtn');
-      const emojiPanel = document.getElementById('emojiPanel');
+      document.addEventListener('click',(e)=>{if(!actionMenu.contains(e.target))hideMenu();});
+      document.addEventListener('contextmenu',()=>hideMenu());
 
-      emojiBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        emojiPanel.classList.toggle('show');
-      });
-
-      document.addEventListener('click', (e) => {
-        if (!emojiPanel.contains(e.target) && e.target !== emojiBtn) {
-          emojiPanel.classList.remove('show');
+      actionMenu.addEventListener('click',(e)=>{
+        const btn=e.target.closest('button');if(!btn)return;
+        const type=btn.getAttribute('data-type');
+        if(currentMenuMsgId&&type){
+          try{socket.emit('msg-action',{msgId:currentMenuMsgId,type});}catch(er){}
         }
+        hideMenu();
       });
 
-      emojiPanel.addEventListener('click', (e) => {
-        const item = e.target.closest('.emoji-item');
-        if (!item) return;
-        const emoji = item.textContent.trim();
-        const start = msgInput.selectionStart;
-        const end   = msgInput.selectionEnd;
-        const before = msgInput.value.substring(0, start);
-        const after  = msgInput.value.substring(end);
-        msgInput.value = before + emoji + after;
-        msgInput.selectionStart = msgInput.selectionEnd = start + emoji.length;
-        msgInput.focus();
-      });
-
-      // ----- 递咖啡按钮（全场流星雨）-----
-      const coffeeBtn = document.getElementById('coffeeBtn');
-      coffeeBtn.addEventListener('click', () => {
-        socket.emit('global-coffee');
-      });
-
-      // ----- 消息 ID 计数器 -----
-      let msgIdCounter = 0;
-      function genMsgId() {
-        return 'msg-' + Date.now() + '-' + (++msgIdCounter) + '-' + Math.random().toString(36).slice(2, 6);
+      // 敏感词过滤
+      const SENSITIVE_WORDS=['操','吃屎','大便','傻逼','妈的','滚蛋','fuck','shit','damn'];
+      function filterContent(text){
+        let f=text;
+        for(const w of SENSITIVE_WORDS){if(!w.trim())continue;const chars=w.split('');const fuzzy=chars.map(c=>c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('[\\s.,;:!?\'"()（）\\[\\]{}|<>@#$%^&*+=_\\-~`\\\\/]*');f=f.replace(new RegExp(fuzzy,'gi'),'***');}
+        return f;
       }
 
-      // ----- 花名池（用于随机昵称按钮）-----
-      const FLOWER_NAMES = [
-        '凌晨三点的猫', '迷路的向日葵', '宇宙边缘的宇航员',
-        '失眠的鲸鱼', '月亮背面的兔子', '深海里的萤火虫',
-        '第七次日落', '北极星的眼泪', '会飞的金鱼',
-        '雨中跳舞的刺猬', '黄昏便利店', '银河铁道乘务员',
-        '星尘收集者', '樱花飘落的速度', '风居住的街道',
-        '被遗忘的邮筒', '云朵上的面包师', '旧唱片里的杂音',
-        '半糖去冰的月亮', '平行世界的另一个我'
-      ];
+      // Emoji
+      const emojiBtn=document.getElementById('emojiBtn'),emojiPanel=document.getElementById('emojiPanel');
+      emojiBtn.addEventListener('click',(e)=>{e.stopPropagation();emojiPanel.classList.toggle('show');});
+      document.addEventListener('click',(e)=>{if(!emojiPanel.contains(e.target)&&e.target!==emojiBtn)emojiPanel.classList.remove('show');});
+      emojiPanel.addEventListener('click',(e)=>{const it=e.target.closest('.emoji-item');if(!it)return;const em=it.textContent.trim(),s=msgInput.selectionStart,en=msgInput.selectionEnd;msgInput.value=msgInput.value.substring(0,s)+em+msgInput.value.substring(en);msgInput.selectionStart=msgInput.selectionEnd=s+em.length;msgInput.focus();});
 
-      let myNickname = '';
-      const socket = io();
+      // 咖啡按钮
+      document.getElementById('coffeeBtn').addEventListener('click',()=>{try{socket.emit('global-coffee');}catch(er){}});
 
-      // ----- 连接成功后不可见，直到用户点击"进入聊天室" -----
+      // 消息ID
+      let msgIdC=0;
+      function genMsgId(){return'm-'+Date.now()+'-'+(++msgIdC)+'-'+Math.random().toString(36).slice(2,6);}
 
-      // 随机昵称按钮
-      randomBtn.addEventListener('click', () => {
-        const name = FLOWER_NAMES[Math.floor(Math.random() * FLOWER_NAMES.length)];
-        nicknameInput.value = name;
-        nicknameInput.focus();
-        nicknameInput.select();
-      });
+      const FLOWER_NAMES=['凌晨三点的猫','迷路的向日葵','宇宙边缘的宇航员','失眠的鲸鱼','月亮背面的兔子','深海里的萤火虫','第七次日落','北极星的眼泪','会飞的金鱼','雨中跳舞的刺猬','黄昏便利店','银河铁道乘务员','星尘收集者','樱花飘落的速度','风居住的街道','被遗忘的邮筒','云朵上的面包师','旧唱片里的杂音','半糖去冰的月亮','平行世界的另一个我'];
+      let myNickname='';
+      const socket=io();
 
-      // 进入聊天室
-      function joinChat() {
-        const raw = nicknameInput.value.trim();
+      randomBtn.addEventListener('click',()=>{const n=FLOWER_NAMES[Math.floor(Math.random()*FLOWER_NAMES.length)];nicknameInput.value=n;nicknameInput.focus();nicknameInput.select();});
 
-        // 禁用按钮防止重复点击
-        joinBtn.disabled = true;
-        joinBtn.textContent = '正在进入…';
-        nicknameInput.disabled = true;
-
-        // 发送 join 事件（服务器收到后返回 welcome）
-        socket.emit('join', { nickname: raw });
-      }
-
-      joinBtn.addEventListener('click', joinChat);
-      nicknameInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          joinChat();
-        }
-      });
-
-      // 自动聚焦昵称输入框
+      function joinChat(){const raw=nicknameInput.value.trim();joinBtn.disabled=true;joinBtn.textContent='正在进入…';nicknameInput.disabled=true;try{socket.emit('join',{nickname:raw});}catch(er){}}
+      joinBtn.addEventListener('click',joinChat);
+      nicknameInput.addEventListener('keydown',(e)=>{if(e.key==='Enter'){e.preventDefault();joinChat();}});
       nicknameInput.focus();
 
-      // ----- Socket.io 事件处理 -----
-
-      // 收到欢迎包（自己的昵称）
-      socket.on('welcome', (data) => {
-        myNickname = data.nickname;
-        myNameEl.textContent = myNickname;
-        onlineEl.textContent = data.usedCount;
-        document.title = `${myNickname} | 口袋树洞`;
-
-        // 昵称已确认，先触发淡出下沉动画
-        nicknameOverlay.classList.add('fade-out');
-        chatApp.classList.add('visible');
-
-        // 等 600ms 动画播完再从 DOM 中隐藏遮罩
-        setTimeout(() => {
-          nicknameOverlay.style.display = 'none';
-        }, 600);
-
-        // 聚焦输入框
-        setTimeout(() => msgInput.focus(), 400);
+      socket.on('welcome',(data)=>{
+        myNickname=data.nickname;myNameEl.textContent=myNickname;onlineEl.textContent=data.usedCount;document.title=myNickname+' | 口袋树洞';
+        nicknameOverlay.classList.add('fade-out');chatApp.classList.add('visible');
+        setTimeout(()=>{try{nicknameOverlay.style.display='none';}catch(er){}},600);
+        setTimeout(()=>msgInput.focus(),400);
       });
+      socket.on('onlineCount',(data)=>{onlineEl.textContent=data.count;});
+      socket.on('message',(msg)=>{appendMessage(msg);});
 
-      // 在线人数更新
-      socket.on('onlineCount', (data) => {
-        onlineEl.textContent = data.count;
-      });
+      function appendMessage(msg,prepend){
+        const wrapper=document.createElement('div');
+        wrapper.className='msg-wrapper'+(msg.type==='system'?' system':'');
+        const isMe=msg.type==='chat'&&msg.nickname===myNickname;
+        if(isMe)wrapper.classList.add('is-me');
+        const msgId=msg.id||genMsgId();
+        wrapper.setAttribute('data-msg-id',msgId);
 
-      // 收到消息
-      socket.on('message', (msg) => {
-        appendMessage(msg);
-      });
+        if(msg.type==='system'){
+          wrapper.innerHTML='<div class="msg-bubble">'+escapeHtml(msg.content)+'</div>';
+        }else{
+          const dn=isMe?'你':escapeHtml(msg.nickname);
+          const likes=msg.likes||0,hugs=msg.hugs||0;
+          const total=likes+hugs;
+          wrapper.innerHTML=
+            '<div class="msg-meta"><span class="msg-nickname">'+dn+'</span><span class="msg-time">'+escapeHtml(msg.time)+'</span></div>'+
+            '<div class="msg-bubble">'+escapeHtml(msg.content)+'<span class="badge-count'+(total>0?' show':'')+'">'+total+'</span></div>';
+          const bubble=wrapper.querySelector('.msg-bubble');
+          let longPressTimer=null;
 
-      // ----- 渲染消息到界面 -----
-      function appendMessage(msg, prepend) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'msg-wrapper' + (msg.type === 'system' ? ' system' : '');
-
-        const isMe = msg.type === 'chat' && msg.nickname === myNickname;
-        if (isMe) {
-          wrapper.classList.add('is-me');
+          bubble.addEventListener('contextmenu',(e)=>{e.preventDefault();hideMenu();showMenu(e.clientX,e.clientY,msgId);});
+          bubble.addEventListener('touchstart',(e)=>{longPressTimer=setTimeout(()=>{const t=e.touches[0];hideMenu();showMenu(t.clientX,t.clientY,msgId);},500);},{passive:true});
+          bubble.addEventListener('touchend',()=>{if(longPressTimer)clearTimeout(longPressTimer);});
+          bubble.addEventListener('touchmove',()=>{if(longPressTimer)clearTimeout(longPressTimer);});
         }
-
-        const msgId = msg.id || genMsgId();
-        wrapper.setAttribute('data-msg-id', msgId);
-
-        if (msg.type === 'system') {
-          wrapper.innerHTML = `<div class="msg-bubble">${escapeHtml(msg.content)}</div>`;
-        } else {
-          const displayName = isMe ? '你' : escapeHtml(msg.nickname);
-          const likes = msg.likes || 0;
-          const hugs  = msg.hugs  || 0;
-          wrapper.innerHTML = `
-            <div class="msg-meta">
-              <span class="msg-nickname">${displayName}</span>
-              <span class="msg-time">${escapeHtml(msg.time)}</span>
-            </div>
-            <div class="msg-bubble">${escapeHtml(msg.content)}</div>
-            <div class="msg-actions">
-              <button class="action-btn btn-like" data-id="${msgId}" data-type="like">👍 <span class="count">${likes}</span></button>
-              <button class="action-btn btn-hug" data-id="${msgId}" data-type="hug">🫂 <span class="count">${hugs}</span></button>
-            </div>`;
-        }
-
-        if (prepend) {
-          msgArea.insertBefore(wrapper, msgArea.firstChild);
-        } else {
-          msgArea.appendChild(wrapper);
-        }
-        msgArea.scrollTop = msgArea.scrollHeight;
+        if(prepend)msgArea.insertBefore(wrapper,msgArea.firstChild);else msgArea.appendChild(wrapper);
+        msgArea.scrollTop=msgArea.scrollHeight;
       }
 
-      // 消息互动：点赞 / 抱一抱
-      msgArea.addEventListener('click', (e) => {
-        const btn = e.target.closest('.action-btn');
-        if (!btn) return;
-        const msgId = btn.getAttribute('data-id');
-        const type  = btn.getAttribute('data-type');
-        socket.emit('msg-action', { msgId, type });
+      socket.on('msg-action-update',(data)=>{
+        const wrapper=msgArea.querySelector('[data-msg-id="'+data.msgId+'"]');
+        if(!wrapper)return;
+        const bubble=wrapper.querySelector('.msg-bubble');
+        if(!bubble)return;
+        let badge=bubble.querySelector('.badge-count');
+        if(!badge){badge=document.createElement('span');badge.className='badge-count';bubble.appendChild(badge);}
+        let likes=0,hugs=0;
+        if(data.type==='like')likes=data.count;else hugs=data.count;
+        const total=likes+hugs||(data.count||0);
+        badge.textContent=total;
+        if(total>0)badge.classList.add('show');else badge.classList.remove('show');
       });
 
-      // 收到互动更新
-      socket.on('msg-action-update', (data) => {
-        const wrapper = msgArea.querySelector(`[data-msg-id="${data.msgId}"]`);
-        if (!wrapper) return;
-        const btn = wrapper.querySelector(`[data-type="${data.type}"] .count`);
-        if (btn) btn.textContent = data.count;
-      });
+      socket.on('global-coffee',()=>{if(window.spawnMeteor)window.spawnMeteor();appendMessage({type:'system',content:'有人默默为全场递出了一杯热咖啡，划过了一颗流星 🌙'});});
 
-      // 收到全场递咖啡 → 流星 + 系统消息
-      socket.on('global-coffee', () => {
-        if (window.spawnMeteor) window.spawnMeteor();
-        appendMessage({
-          type: 'system',
-          content: '有人默默为全场递出了一杯热咖啡，划过了一颗流星 🌙'
-        });
-      });
+      function sendMessage(){const raw=msgInput.value.trim();if(!raw)return;const content=filterContent(raw);try{socket.emit('chatMessage',{content});}catch(er){}msgInput.value='';msgInput.focus();}
+      sendBtn.addEventListener('click',sendMessage);
+      msgInput.addEventListener('keydown',(e)=>{if(e.key==='Enter'){e.preventDefault();sendMessage();}});
 
-      // ----- 发送逻辑 -----
-      function sendMessage() {
-        const raw = msgInput.value.trim();
-        if (!raw) return;
-        const content = filterContent(raw);
-        socket.emit('chatMessage', { content });
-        msgInput.value = '';
-        msgInput.focus();
-      }
-
-      // 点击发送
-      sendBtn.addEventListener('click', sendMessage);
-
-      // 回车发送
-      msgInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          sendMessage();
-        }
-      });
-
-      // ----- 转义 HTML 防 XSS -----
-      function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-      }
-
+      function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
     })();
   </script>
 </body>
