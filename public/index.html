@@ -14,8 +14,8 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at 10% 10%, #f4f6fb, #f9f9fb);
-      color: #1d1d1f;
+      background: radial-gradient(circle at 80% 20%, #161233, #06040a);
+      color: #e5e7eb;
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -25,7 +25,7 @@
     }
 
     /* ================================================================
-       昵称输入覆盖层 — 浅色毛玻璃遮罩
+       昵称输入覆盖层 — 深色毛玻璃遮罩
        ================================================================ */
     .nickname-overlay {
       position: fixed;
@@ -34,7 +34,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(245, 245, 247, 0.72);
+      background: rgba(6, 4, 10, 0.78);
       backdrop-filter: blur(30px);
       -webkit-backdrop-filter: blur(30px);
       transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -50,13 +50,13 @@
       width: 92%;
       max-width: 400px;
       padding: 48px 40px 40px;
-      background: rgba(255, 255, 255, 0.65);
+      background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 22px;
       text-align: center;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
       animation: cardAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -73,14 +73,14 @@
     .nickname-card h1 {
       font-size: 28px;
       font-weight: 700;
-      color: #1d1d1f;
+      color: #ffffff;
       letter-spacing: -0.02em;
       margin-bottom: 8px;
     }
 
     .nickname-card .subtitle {
       font-size: 14px;
-      color: #86868b;
+      color: rgba(255, 255, 255, 0.45);
       margin-bottom: 32px;
       line-height: 1.6;
     }
@@ -95,10 +95,10 @@
     .nickname-card input {
       width: 100%;
       padding: 14px 18px;
-      background: rgba(0, 0, 0, 0.03);
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 14px;
-      color: #1d1d1f;
+      color: #fff;
       font-size: 16px;
       text-align: center;
       outline: none;
@@ -107,14 +107,14 @@
     }
 
     .nickname-card input::placeholder {
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.3);
       font-size: 14px;
     }
 
     .nickname-card input:focus {
-      background: #ffffff;
-      border-color: rgba(0, 122, 255, 0.4);
-      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+      background: rgba(0, 0, 0, 0.4);
+      border-color: rgba(0, 122, 255, 0.45);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
     }
 
     .nickname-card .btn-row {
@@ -135,25 +135,26 @@
     }
 
     .nickname-card .btn-random {
-      background: rgba(0, 0, 0, 0.04);
-      color: #1d1d1f;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.75);
     }
 
     .nickname-card .btn-random:hover {
-      background: rgba(0, 0, 0, 0.08);
+      background: rgba(255, 255, 255, 0.12);
       transform: translateY(-1px);
     }
 
     .nickname-card .btn-join {
       background: linear-gradient(135deg, #007aff, #0056b3);
       color: #ffffff;
-      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
     }
 
     .nickname-card .btn-join:hover {
       transform: translateY(-1px) scale(1.03);
-      box-shadow: 0 6px 20px rgba(0, 122, 255, 0.35);
-      filter: brightness(1.1);
+      box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+      filter: brightness(1.15);
     }
 
     .nickname-card .btn:active {
@@ -163,12 +164,12 @@
     .nickname-card .hint {
       margin-top: 20px;
       font-size: 12px;
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.25);
       line-height: 1.5;
     }
 
     /* ================================================================
-       聊天主界面 — 全屏通透排版
+       聊天主界面 — 全屏白玻璃面板
        ================================================================ */
     .chat-app {
       position: relative;
@@ -176,6 +177,10 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       opacity: 0;
       transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
     }
@@ -184,16 +189,16 @@
       opacity: 1;
     }
 
-    /* ---------- 顶部状态栏 — 白磨砂玻璃 ---------- */
+    /* ---------- 顶部状态栏 — 暗色磨砂玻璃 ---------- */
     .status-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 14px 24px;
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       flex-shrink: 0;
     }
 
@@ -202,7 +207,7 @@
       align-items: center;
       gap: 8px;
       font-size: 15px;
-      color: #1d1d1f;
+      color: rgba(255, 255, 255, 0.7);
       font-weight: 500;
     }
 
@@ -211,20 +216,20 @@
       height: 8px;
       border-radius: 50%;
       background: #34c759;
-      box-shadow: 0 0 6px rgba(52, 199, 89, 0.4);
+      box-shadow: 0 0 8px rgba(52, 199, 89, 0.5);
     }
 
     .nickname-highlight {
-      color: #007aff;
+      color: #60a5fa;
       font-weight: 700;
     }
 
     .online-badge {
       font-size: 13px;
-      color: #86868b;
+      color: rgba(255, 255, 255, 0.4);
     }
 
-    /* ---------- 消息滚动区 — 通透微透 ---------- */
+    /* ---------- 消息滚动区 — 完全透明 ---------- */
     .messages-area {
       flex: 1;
       overflow-y: auto;
@@ -245,12 +250,12 @@
     }
 
     .messages-area::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.10);
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 10px;
     }
 
     .messages-area::-webkit-scrollbar-thumb:hover {
-      background: rgba(0, 0, 0, 0.18);
+      background: rgba(255, 255, 255, 0.16);
     }
 
     /* 消息气泡 — 通用 */
@@ -267,19 +272,19 @@
 
     .msg-meta {
       font-size: 12px;
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.35);
       margin-bottom: 4px;
       padding-left: 10px;
     }
 
     .msg-meta .msg-nickname {
-      color: #86868b;
+      color: rgba(255, 255, 255, 0.5);
       font-weight: 600;
     }
 
     .msg-meta .msg-time {
       margin-left: 6px;
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.25);
     }
 
     .msg-bubble {
@@ -293,14 +298,15 @@
       letter-spacing: -0.01em;
     }
 
-    /* 他人消息气泡 — 温润浅灰 */
+    /* 他人消息气泡 — 淡白磨砂 */
     .msg-wrapper:not(.is-me):not(.system) .msg-bubble {
       border-radius: 4px 18px 18px 18px;
-      background: #eeeff2;
-      color: #1d1d1f;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e5e7eb;
     }
 
-    /* 自己发送的消息 — 蓝色果冻液态高光 */
+    /* 自己发送的消息 — 深蓝果冻偏光 */
     .msg-wrapper.is-me {
       align-items: flex-end;
     }
@@ -312,14 +318,14 @@
     }
 
     .msg-wrapper.is-me .msg-meta .msg-nickname {
-      color: #007aff;
+      color: rgba(96, 165, 250, 0.7);
     }
 
     .msg-wrapper.is-me .msg-bubble {
       border-radius: 18px 18px 4px 18px;
-      background: linear-gradient(135deg, #007aff, #0056b3);
+      background: rgba(0, 122, 255, 0.2);
+      border: 1px solid rgba(0, 122, 255, 0.35);
       color: #ffffff;
-      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
     }
 
     /* 系统消息居中 */
@@ -329,9 +335,9 @@
     }
 
     .msg-wrapper.system .msg-bubble {
-      background: rgba(0, 0, 0, 0.03);
+      background: rgba(255, 255, 255, 0.04);
       border-radius: 12px;
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.3);
       font-size: 12px;
       padding: 6px 16px;
     }
@@ -340,26 +346,26 @@
       display: none;
     }
 
-    /* ---------- 底部输入区 — 白磨砂玻璃 ---------- */
+    /* ---------- 底部输入区 — 暗色磨砂玻璃 ---------- */
     .input-area {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 12px 24px;
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255, 255, 255, 0.4);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       flex-shrink: 0;
     }
 
     .input-area input {
       flex: 1;
       padding: 12px 18px;
-      background: rgba(0, 0, 0, 0.03);
-      border: 1px solid rgba(0, 0, 0, 0.06);
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 24px;
-      color: #1d1d1f;
+      color: #fff;
       font-size: 16px;
       outline: none;
       letter-spacing: -0.01em;
@@ -367,13 +373,13 @@
     }
 
     .input-area input::placeholder {
-      color: #aeaeb2;
+      color: rgba(255, 255, 255, 0.3);
     }
 
     .input-area input:focus {
-      background: #ffffff;
-      border-color: rgba(0, 122, 255, 0.4);
-      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+      background: rgba(0, 0, 0, 0.4);
+      border-color: rgba(0, 122, 255, 0.45);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
     }
 
     .input-area button {
@@ -388,13 +394,13 @@
       letter-spacing: -0.01em;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
     }
 
     .input-area button:hover {
       transform: translateY(-1px) scale(1.03);
-      box-shadow: 0 6px 20px rgba(0, 122, 255, 0.35);
-      filter: brightness(1.1);
+      box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+      filter: brightness(1.15);
     }
 
     .input-area button:active {
