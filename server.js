@@ -147,6 +147,7 @@ io.on('connection', (socket) => {
   socket.on('msg-action', (data) => {
     if (!hasJoined) return;
     if (!data || !data.msgId || !data.type) return;
+    console.log('[DEBUG] 收到消息互动:', data);
     io.emit('msg-action-update', {
       msgId: data.msgId,
       type: data.type,
@@ -157,6 +158,7 @@ io.on('connection', (socket) => {
   // ---------- 全场递咖啡 ----------
   socket.on('global-coffee', () => {
     if (!hasJoined) return;
+    console.log('[DEBUG] 收到咖啡广播，准备转发给全场...');
     socket.broadcast.emit('global-coffee');
   });
 
