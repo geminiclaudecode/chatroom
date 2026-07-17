@@ -135,6 +135,7 @@ io.on('connection', (socket) => {
 
     const msg = {
       type: 'chat',
+      id: data && data.id ? data.id : null,
       nickname: socket.nickname,
       content,
       time: formatTime()
