@@ -48,7 +48,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(6, 4, 10, 0.65);
+      background: rgba(6, 4, 10, 0.25) !important;
       backdrop-filter: blur(30px);
       -webkit-backdrop-filter: blur(30px);
       transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -250,13 +250,9 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.03) 0%,
-        rgba(255, 255, 255, 0.01) 100%
-      );
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
+      background: rgba(255, 255, 255, 0.02) !important;
+      backdrop-filter: blur(35px) !important;
+      -webkit-backdrop-filter: blur(35px) !important;
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow:
         0 20px 50px rgba(0, 0, 0, 0.5),
@@ -723,13 +719,18 @@
       }
 
       function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(6, 8, 15, 0.35)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(140, 200, 180, 0.25)';
+
         for (const s of stars) {
           s.x += s.vx;
           s.y += s.vy;
           s.alpha += s.alphaSpeed * s.alphaDir;
-          if (s.alpha >= 0.7) { s.alphaDir = -1; }
-          if (s.alpha <= 0.08) { s.alphaDir = 1; }
+          if (s.alpha >= 0.75) { s.alphaDir = -1; }
+          if (s.alpha <= 0.06) { s.alphaDir = 1; }
 
           if (s.x < -10) s.x = canvas.width + 10;
           if (s.x > canvas.width + 10) s.x = -10;
@@ -738,7 +739,7 @@
 
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(180, 200, 220, ${s.alpha.toFixed(3)})`;
+          ctx.fillStyle = `rgba(190, 215, 225, ${s.alpha.toFixed(3)})`;
           ctx.fill();
         }
         requestAnimationFrame(draw);
